@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Camera, Upload } from 'lucide-react';
 import { Player } from '@/types/soccer';
 
 interface PlayerFormProps {
@@ -27,13 +29,28 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ isOpen, onClose, onSave, player
     jerseyNumber: player?.jerseyNumber || 1,
     x: player?.x || 50,
     y: player?.y || 50,
+    profilePhoto: player?.profilePhoto || '',
   });
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setFormData({ ...formData, profilePhoto: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
     onClose();
-    setFormData({ name: '', position: '', jerseyNumber: 1, x: 50, y: 50 });
+    setFormData({ name: '', position: '', jerseyNumber: 1, x: 50, y: 50, profilePhoto: '' });
   };
 
   return (
@@ -43,6 +60,47 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ isOpen, onClose, onSave, player
           <DialogTitle>{player ? 'Edit Player' : 'Add New Player'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex flex-col items-center space-y-2">
+            <Label>Profile Photo</Label>
+            <div className="relative">
+              <Avatar className="w-20 h-20">
+                {formData.profilePhoto ? (
+                  <AvatarImage src={formData.profilePhoto} alt={formData.name} />
+                ) : (
+                  <AvatarFallback className="text-2xl">
+                    {formData.name ? formData.name[0].toUpperCase() : '?'}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Camera className="h-4 w-4" />
+              </Button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-xs"
+            >
+              <Upload className="h-3 w-3 mr-1" />
+              Upload Photo
+            </Button>
+          </div>
+          
           <div>
             <Label htmlFor="name">Player Name</Label>
             <Input

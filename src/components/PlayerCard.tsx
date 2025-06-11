@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Player } from '@/types/soccer';
 import { Edit, Trash2 } from 'lucide-react';
 
@@ -15,8 +16,19 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, onEdit, onDelete }) => 
   return (
     <Card className="p-3 flex items-center justify-between hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-          {player.jerseyNumber}
+        <div className="relative">
+          <Avatar className="w-10 h-10">
+            {player.profilePhoto ? (
+              <AvatarImage src={player.profilePhoto} alt={player.name} />
+            ) : (
+              <AvatarFallback className="bg-blue-600 text-white">
+                {player.name[0]?.toUpperCase() || '?'}
+              </AvatarFallback>
+            )}
+          </Avatar>
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+            {player.jerseyNumber}
+          </div>
         </div>
         <div>
           <h4 className="font-medium">{player.name}</h4>

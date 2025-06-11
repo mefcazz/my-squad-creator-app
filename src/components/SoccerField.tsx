@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Player } from '@/types/soccer';
 
 interface SoccerFieldProps {
@@ -91,8 +92,22 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
           onDragStart={e => handleDragStart(e, player.id)}
         >
           <div className="flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full bg-white border-4 border-red-600 flex items-center justify-center text-red-600 font-bold text-sm shadow-lg hover:scale-110 transition-transform overflow-hidden">
-              {player.jerseyNumber}
+            <div className="relative">
+              {player.profilePhoto ? (
+                <Avatar className="w-12 h-12 border-4 border-white shadow-lg hover:scale-110 transition-transform">
+                  <AvatarImage src={player.profilePhoto} alt={player.name} />
+                  <AvatarFallback className="bg-red-600 text-white font-bold">
+                    {player.name[0]?.toUpperCase() || '?'}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-white border-4 border-red-600 flex items-center justify-center text-red-600 font-bold text-sm shadow-lg hover:scale-110 transition-transform">
+                  {player.jerseyNumber}
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold border-2 border-white">
+                {player.jerseyNumber}
+              </div>
             </div>
             <span className="text-xs text-white font-bold mt-1 bg-black bg-opacity-60 px-2 py-0.5 rounded uppercase tracking-wide">
               {player.name}
