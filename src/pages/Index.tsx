@@ -1,11 +1,11 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Users, Zap, Save, Download } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Users, Zap, Save, Download, Camera, Palette } from 'lucide-react';
 import SoccerField from '@/components/SoccerField';
 import PlayerCard from '@/components/PlayerCard';
 import PlayerForm from '@/components/PlayerForm';
@@ -13,6 +13,16 @@ import FormationSelector from '@/components/FormationSelector';
 import { Player, Team } from '@/types/soccer';
 import { formations } from '@/data/formations';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
+
+const fieldColors = [
+  { id: 'classic', name: 'Classic Green', color: 'from-green-700 via-green-800 to-green-700' },
+  { id: 'dark', name: 'Dark Red', color: 'from-red-900 via-red-950 to-red-900' },
+  { id: 'blue', name: 'Ocean Blue', color: 'from-blue-700 via-blue-800 to-blue-700' },
+  { id: 'purple', name: 'Royal Purple', color: 'from-purple-700 via-purple-800 to-purple-700' },
+  { id: 'emerald', name: 'Emerald', color: 'from-emerald-700 via-emerald-800 to-emerald-700' },
+  { id: 'orange', name: 'Sunset Orange', color: 'from-orange-700 via-orange-800 to-orange-700' },
+];
 
 const Index = () => {
   const [team, setTeam] = useState<Team>({
@@ -24,6 +34,8 @@ const Index = () => {
   
   const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | undefined>();
+  const [fieldColor, setFieldColor] = useState('dark');
+  const fieldRef = useRef<HTMLDivElement>(null);
 
   // Load team from localStorage on component mount
   useEffect(() => {
@@ -128,6 +140,27 @@ const Index = () => {
     toast.success('Team lineup exported!');
   };
 
+  const downloadFieldAsImage = async () => {
+    if (!fieldRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(fieldRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+      });
+      
+      const link = document.createElement('a');
+      link.download = `${team.name}_lineup.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      toast.success('Lineup image downloaded!');
+    } catch (error) {
+      toast.error('Failed to download image');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background bg-vintage-pattern font-radikal">
       {/* Subtle decorative elements */}
@@ -141,47 +174,62 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2 font-radikal">
-              ⚽ Soccer Lineup Manager
+              ⚽ Team Lineup
             </h1>
             <p className="text-muted-foreground font-radikal">
-              Create and manage your dream team with custom players and formations
+              Made by ataya
             </p>
+          </div>
+
+          {/* Team Name and Controls */}
+          <div className="mb-6">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-4 flex-1">
+                  <Label htmlFor="team-name" className="font-radikal font-semibold">Team Name:</Label>
+                  <Input
+                    id="team-name"
+                    value={team.name}
+                    onChange={(e) => handleTeamNameChange(e.target.value)}
+                    className="text-lg font-semibold font-radikal max-w-xs"
+                    placeholder="Enter team name"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={exportTeam} variant="outline" size="sm" className="font-radikal">
+                    <Download className="h-4 w-4 mr-1" />
+                    Export JSON
+                  </Button>
+                  <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal">
+                    <Camera className="h-4 w-4 mr-1" />
+                    Download Image
+                  </Button>
+                  <Button
+                    onClick={() => setIsPlayerFormOpen(true)}
+                    size="sm"
+                    className="font-radikal"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Player
+                  </Button>
+                </div>
+              </CardHeader>
+            </Card>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Main Field Area */}
             <div className="lg:col-span-2">
               <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={team.name}
-                      onChange={(e) => handleTeamNameChange(e.target.value)}
-                      className="text-lg font-semibold border-none bg-transparent p-0 h-auto font-radikal"
-                      placeholder="Team Name"
+                <CardContent className="p-6">
+                  <div ref={fieldRef}>
+                    <SoccerField
+                      players={team.players}
+                      onPlayerMove={handlePlayerMove}
+                      fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
+                      className="mb-4"
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <Button onClick={exportTeam} variant="outline" size="sm" className="font-radikal">
-                      <Download className="h-4 w-4 mr-1" />
-                      Export
-                    </Button>
-                    <Button
-                      onClick={() => setIsPlayerFormOpen(true)}
-                      size="sm"
-                      className="font-radikal"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Player
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <SoccerField
-                    players={team.players}
-                    onPlayerMove={handlePlayerMove}
-                    className="mb-4"
-                  />
                   <div className="text-center text-sm text-muted-foreground font-radikal">
                     Drag players to position them on the field
                   </div>
@@ -192,7 +240,7 @@ const Index = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                <TabsList className="grid w-full grid-cols-3 bg-muted/50">
                   <TabsTrigger value="players" className="font-radikal">
                     <Users className="h-4 w-4 mr-1" />
                     Players
@@ -200,6 +248,10 @@ const Index = () => {
                   <TabsTrigger value="formations" className="font-radikal">
                     <Zap className="h-4 w-4 mr-1" />
                     Formations
+                  </TabsTrigger>
+                  <TabsTrigger value="customize" className="font-radikal">
+                    <Palette className="h-4 w-4 mr-1" />
+                    Field
                   </TabsTrigger>
                 </TabsList>
                 
@@ -252,6 +304,38 @@ const Index = () => {
                     </CardContent>
                   </Card>
                 </TabsContent>
+
+                <TabsContent value="customize">
+                  <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+                    <CardHeader>
+                      <CardTitle className="font-radikal">Field Color</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="field-color" className="font-radikal">Choose Field Color</Label>
+                        <Select value={fieldColor} onValueChange={setFieldColor}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select field color" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {fieldColors.map((color) => (
+                              <SelectItem key={color.id} value={color.id} className="font-radikal">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-4 h-4 rounded bg-gradient-to-r ${color.color}`}></div>
+                                  {color.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-radikal">Preview</Label>
+                        <div className={`w-full h-16 rounded bg-gradient-to-r ${fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color} border-2 border-white/20`}></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
               </Tabs>
             </div>
           </div>
@@ -265,6 +349,13 @@ const Index = () => {
             onSave={editingPlayer ? handleUpdatePlayer : handleAddPlayer}
             player={editingPlayer}
           />
+
+          {/* Credit Footer */}
+          <div className="text-center mt-8 pb-4">
+            <p className="text-sm text-muted-foreground font-radikal">
+              Made with ❤️ by <span className="font-semibold text-foreground">ataya гзл</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>

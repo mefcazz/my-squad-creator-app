@@ -7,12 +7,14 @@ import { Player } from '@/types/soccer';
 interface SoccerFieldProps {
   players: Player[];
   onPlayerMove: (playerId: string, x: number, y: number) => void;
+  fieldColor?: string;
   className?: string;
 }
 
 const SoccerField: React.FC<SoccerFieldProps> = ({
   players,
   onPlayerMove,
+  fieldColor = 'from-red-900 via-red-950 to-red-900',
   className
 }) => {
   const handleDragStart = (e: React.DragEvent, playerId: string) => {
@@ -34,7 +36,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
 
   return (
     <div 
-      className={cn("relative w-full aspect-[2/3] bg-gradient-to-b from-red-900 via-red-950 to-red-900 rounded-lg overflow-hidden border-2 border-white shadow-lg", className)} 
+      className={cn(`relative w-full aspect-[2/3] bg-gradient-to-b ${fieldColor} rounded-lg overflow-hidden border-2 border-white shadow-lg`, className)} 
       onDrop={handleDrop} 
       onDragOver={handleDragOver}
     >
