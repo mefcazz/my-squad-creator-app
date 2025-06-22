@@ -19,6 +19,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ isOpen, onClose, onCrop, im
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragging(true);
@@ -26,12 +27,27 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ isOpen, onClose, onCrop, im
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!dragging) return;
+    if (!dragging || !containerRef.current || !imageRef.current) return;
+    
+    const container = containerRef.current.getBoundingClientRect();
+    const img = imageRef.current.getBoundingClientRect();
+    
+    // Calculate the maximum allowed movement based on zoom level
+    const scaledWidth = img.width * zoom[0];
+    const scaledHeight = img.height * zoom[0];
+    
+    // Calculate limits to prevent cropping into black areas
+    const maxX = Math.max(0, (scaledWidth - container.width) / 2);
+    const maxY = Math.max(0, (scaledHeight - container.height) / 2);
+    
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
     setCrop({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
+      x: Math.max(-maxX, Math.min(maxX, newX)),
+      y: Math.max(-maxY, Math.min(maxY, newY))
     });
-  }, [dragging, dragStart]);
+  }, [dragging, dragStart, zoom]);
 
   const handleMouseUp = () => {
     setDragging(false);
@@ -59,13 +75,17 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ isOpen, onClose, onCrop, im
       ctx.arc(centerX, centerY, size / 2, 0, 2 * Math.PI);
       ctx.clip();
 
-      const imgSize = Math.min(img.width, img.height) * scale;
-      const sx = (img.width - imgSize) / 2 + crop.x;
-      const sy = (img.height - imgSize) / 2 + crop.y;
+      // Calculate the source rectangle to crop from the original image
+      const imgSize = Math.min(img.width, img.height);
+      const scaledSize = imgSize / scale;
+      
+      // Convert crop position to source coordinates
+      const sx = (img.width - scaledSize) / 2 - (crop.x / scale);
+      const sy = (img.height - scaledSize) / 2 - (crop.y / scale);
 
       ctx.drawImage(
         img,
-        sx, sy, imgSize, imgSize,
+        sx, sy, scaledSize, scaledSize,
         0, 0, size, size
       );
 
@@ -99,6 +119,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ isOpen, onClose, onCrop, im
             onMouseLeave={handleMouseUp}
           >
             <img
+              ref={imageRef}
               src={imageSrc}
               alt="Crop preview"
               className="absolute inset-0 w-full h-full object-cover cursor-move"
@@ -115,7 +136,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ isOpen, onClose, onCrop, im
             <Slider
               value={zoom}
               onValueChange={setZoom}
-              min={0.5}
+              min={1}
               max={3}
               step={0.1}
               className="w-full"

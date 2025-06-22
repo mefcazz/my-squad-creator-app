@@ -111,7 +111,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
                 {player.jerseyNumber}
               </div>
             </div>
-            <span className="text-xs text-white font-bold mt-1 bg-black bg-opacity-60 px-2 py-0.5 rounded uppercase tracking-wide">
+            <span className="text-xs text-white font-bold mt-1 px-2 py-0.5 rounded uppercase tracking-wide">
               {player.name}
             </span>
           </div>

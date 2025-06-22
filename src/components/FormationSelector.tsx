@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Formation } from '@/types/soccer';
 
 interface FormationSelectorProps {
@@ -18,7 +17,7 @@ const FormationSelector: React.FC<FormationSelectorProps> = ({
   return (
     <div className="space-y-3">
       <h3 className="text-lg font-semibold">Formation Presets</h3>
-      <div className="grid grid-cols-1 gap-3">
+      <div className="space-y-2 max-h-80 overflow-y-auto">
         {formations.map((formation) => (
           <Card
             key={formation.id}

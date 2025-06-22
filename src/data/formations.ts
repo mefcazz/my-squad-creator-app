@@ -2,9 +2,127 @@
 import { Formation } from '@/types/soccer';
 
 export const formations: Formation[] = [
+  // 5-a-side formations
+  {
+    id: '2-1-1',
+    name: '2-1-1 (5 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 30, y: 30 },
+      { position: 'Left Back', x: 30, y: 70 },
+      { position: 'Midfielder', x: 60, y: 50 },
+      { position: 'Striker', x: 80, y: 50 },
+    ],
+  },
+  {
+    id: '1-2-1',
+    name: '1-2-1 (5 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Center Back', x: 30, y: 50 },
+      { position: 'Right Midfielder', x: 60, y: 35 },
+      { position: 'Left Midfielder', x: 60, y: 65 },
+      { position: 'Striker', x: 80, y: 50 },
+    ],
+  },
+  {
+    id: '1-1-2',
+    name: '1-1-2 (5 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Center Back', x: 30, y: 50 },
+      { position: 'Midfielder', x: 55, y: 50 },
+      { position: 'Right Striker', x: 75, y: 40 },
+      { position: 'Left Striker', x: 75, y: 60 },
+    ],
+  },
+  // 7-a-side formations
+  {
+    id: '3-2-1',
+    name: '3-2-1 (7 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 25, y: 25 },
+      { position: 'Center Back', x: 25, y: 50 },
+      { position: 'Left Back', x: 25, y: 75 },
+      { position: 'Right Midfielder', x: 50, y: 40 },
+      { position: 'Left Midfielder', x: 50, y: 60 },
+      { position: 'Striker', x: 75, y: 50 },
+    ],
+  },
+  {
+    id: '2-3-1',
+    name: '2-3-1 (7 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 25, y: 35 },
+      { position: 'Left Back', x: 25, y: 65 },
+      { position: 'Right Midfielder', x: 45, y: 30 },
+      { position: 'Central Midfielder', x: 45, y: 50 },
+      { position: 'Left Midfielder', x: 45, y: 70 },
+      { position: 'Striker', x: 70, y: 50 },
+    ],
+  },
+  {
+    id: '2-2-2',
+    name: '2-2-2 (7 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 25, y: 35 },
+      { position: 'Left Back', x: 25, y: 65 },
+      { position: 'Right Midfielder', x: 50, y: 40 },
+      { position: 'Left Midfielder', x: 50, y: 60 },
+      { position: 'Right Striker', x: 75, y: 40 },
+      { position: 'Left Striker', x: 75, y: 60 },
+    ],
+  },
+  // 8-a-side formations
+  {
+    id: '3-3-1',
+    name: '3-3-1 (8 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 25, y: 25 },
+      { position: 'Center Back', x: 25, y: 50 },
+      { position: 'Left Back', x: 25, y: 75 },
+      { position: 'Right Midfielder', x: 50, y: 30 },
+      { position: 'Central Midfielder', x: 50, y: 50 },
+      { position: 'Left Midfielder', x: 50, y: 70 },
+      { position: 'Striker', x: 75, y: 50 },
+    ],
+  },
+  {
+    id: '3-2-2',
+    name: '3-2-2 (8 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 25, y: 25 },
+      { position: 'Center Back', x: 25, y: 50 },
+      { position: 'Left Back', x: 25, y: 75 },
+      { position: 'Right Midfielder', x: 50, y: 40 },
+      { position: 'Left Midfielder', x: 50, y: 60 },
+      { position: 'Right Striker', x: 75, y: 40 },
+      { position: 'Left Striker', x: 75, y: 60 },
+    ],
+  },
+  {
+    id: '2-4-1',
+    name: '2-4-1 (8 players)',
+    positions: [
+      { position: 'Goalkeeper', x: 10, y: 50 },
+      { position: 'Right Back', x: 25, y: 35 },
+      { position: 'Left Back', x: 25, y: 65 },
+      { position: 'Right Midfielder', x: 45, y: 25 },
+      { position: 'Right Central Midfielder', x: 45, y: 42 },
+      { position: 'Left Central Midfielder', x: 45, y: 58 },
+      { position: 'Left Midfielder', x: 45, y: 75 },
+      { position: 'Striker', x: 70, y: 50 },
+    ],
+  },
+  // 11-a-side formations
   {
     id: '4-3-3',
-    name: '4-3-3',
+    name: '4-3-3 (11 players)',
     positions: [
       { position: 'Goalkeeper', x: 10, y: 50 },
       { position: 'Right Back', x: 25, y: 20 },
@@ -21,7 +139,7 @@ export const formations: Formation[] = [
   },
   {
     id: '4-4-2',
-    name: '4-4-2',
+    name: '4-4-2 (11 players)',
     positions: [
       { position: 'Goalkeeper', x: 10, y: 50 },
       { position: 'Right Back', x: 25, y: 20 },
@@ -37,25 +155,8 @@ export const formations: Formation[] = [
     ],
   },
   {
-    id: '3-5-2',
-    name: '3-5-2',
-    positions: [
-      { position: 'Goalkeeper', x: 10, y: 50 },
-      { position: 'Center Back', x: 25, y: 30 },
-      { position: 'Center Back', x: 25, y: 50 },
-      { position: 'Center Back', x: 25, y: 70 },
-      { position: 'Right Wing Back', x: 45, y: 15 },
-      { position: 'Central Midfielder', x: 45, y: 35 },
-      { position: 'Central Midfielder', x: 45, y: 50 },
-      { position: 'Central Midfielder', x: 45, y: 65 },
-      { position: 'Left Wing Back', x: 45, y: 85 },
-      { position: 'Striker', x: 75, y: 40 },
-      { position: 'Striker', x: 75, y: 60 },
-    ],
-  },
-  {
     id: '4-2-3-1',
-    name: '4-2-3-1',
+    name: '4-2-3-1 (11 players)',
     positions: [
       { position: 'Goalkeeper', x: 10, y: 50 },
       { position: 'Right Back', x: 25, y: 20 },
