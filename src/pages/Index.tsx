@@ -170,10 +170,10 @@ const Index = () => {
         <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full bg-gradient-to-r from-amber-800/3 to-stone-600/2 blur-2xl"></div>
       </div>
 
-      <div className="relative z-10 p-4">
+      <div className="relative z-10 p-2 sm:p-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2 font-radikal">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 font-radikal">
               ⚽ Team Lineup
             </h1>
             <p className="text-muted-foreground font-radikal">
@@ -182,46 +182,48 @@ const Index = () => {
           </div>
 
           {/* Team Name and Controls */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <Label htmlFor="team-name" className="font-radikal font-semibold">Team Name:</Label>
-                  <Input
-                    id="team-name"
-                    value={team.name}
-                    onChange={(e) => handleTeamNameChange(e.target.value)}
-                    className="text-lg font-semibold font-radikal max-w-xs"
-                    placeholder="Enter team name"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={exportTeam} variant="outline" size="sm" className="font-radikal">
-                    <Download className="h-4 w-4 mr-1" />
-                    Export JSON
-                  </Button>
-                  <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal">
-                    <Camera className="h-4 w-4 mr-1" />
-                    Download Image
-                  </Button>
-                  <Button
-                    onClick={() => setIsPlayerFormOpen(true)}
-                    size="sm"
-                    className="font-radikal"
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Player
-                  </Button>
+              <CardHeader className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1">
+                    <Label htmlFor="team-name" className="font-radikal font-semibold whitespace-nowrap">Team Name:</Label>
+                    <Input
+                      id="team-name"
+                      value={team.name}
+                      onChange={(e) => handleTeamNameChange(e.target.value)}
+                      className="text-lg font-semibold font-radikal sm:max-w-xs"
+                      placeholder="Enter team name"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={exportTeam} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm">
+                      <Download className="h-4 w-4 mr-1" />
+                      Export JSON
+                    </Button>
+                    <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm">
+                      <Camera className="h-4 w-4 mr-1" />
+                      Download Image
+                    </Button>
+                    <Button
+                      onClick={() => setIsPlayerFormOpen(true)}
+                      size="sm"
+                      className="font-radikal text-xs sm:text-sm"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Player
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
             </Card>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Main Field Area */}
-            <div className="lg:col-span-2">
+            <div className="order-1 lg:order-none lg:col-span-2">
               <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-6">
                   <div ref={fieldRef}>
                     <SoccerField
                       players={team.players}
@@ -230,7 +232,7 @@ const Index = () => {
                       className="mb-4"
                     />
                   </div>
-                  <div className="text-center text-sm text-muted-foreground font-radikal">
+                  <div className="text-center text-xs sm:text-sm text-muted-foreground font-radikal">
                     Drag players to position them on the field
                   </div>
                 </CardContent>
@@ -238,27 +240,27 @@ const Index = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="order-2 lg:order-none space-y-4 sm:space-y-6">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-muted/50">
-                  <TabsTrigger value="players" className="font-radikal">
-                    <Users className="h-4 w-4 mr-1" />
-                    Players
+                <TabsList className="grid w-full grid-cols-3 bg-muted/50 h-auto">
+                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2">
+                    <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Players</span>
                   </TabsTrigger>
-                  <TabsTrigger value="formations" className="font-radikal">
-                    <Zap className="h-4 w-4 mr-1" />
-                    Formations
+                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2">
+                    <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Formations</span>
                   </TabsTrigger>
-                  <TabsTrigger value="customize" className="font-radikal">
-                    <Palette className="h-4 w-4 mr-1" />
-                    Field
+                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2">
+                    <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Field</span>
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="players" className="space-y-4">
+                <TabsContent value="players" className="space-y-4 mt-4">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between font-radikal">
+                    <CardHeader className="p-4">
+                      <CardTitle className="flex items-center justify-between font-radikal text-sm sm:text-base">
                         Squad ({team.players.length}/11)
                         <Button
                           onClick={() => setIsPlayerFormOpen(true)}
@@ -269,7 +271,7 @@ const Index = () => {
                         </Button>
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3">
+                    <CardContent className="space-y-3 p-4 pt-0 max-h-96 overflow-y-auto">
                       {team.players.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -290,12 +292,12 @@ const Index = () => {
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="formations">
+                <TabsContent value="formations" className="mt-4">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                    <CardHeader>
-                      <CardTitle className="font-radikal">Choose Formation</CardTitle>
+                    <CardHeader className="p-4">
+                      <CardTitle className="font-radikal text-sm sm:text-base">Choose Formation</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-4 pt-0 max-h-96 overflow-y-auto">
                       <FormationSelector
                         formations={formations}
                         selectedFormation={team.formation}
@@ -305,12 +307,12 @@ const Index = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="customize">
+                <TabsContent value="customize" className="mt-4">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                    <CardHeader>
-                      <CardTitle className="font-radikal">Field Color</CardTitle>
+                    <CardHeader className="p-4">
+                      <CardTitle className="font-radikal text-sm sm:text-base">Field Color</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-4 p-4 pt-0">
                       <div className="space-y-2">
                         <Label htmlFor="field-color" className="font-radikal">Choose Field Color</Label>
                         <Select value={fieldColor} onValueChange={setFieldColor}>
@@ -351,7 +353,7 @@ const Index = () => {
           />
 
           {/* Credit Footer */}
-          <div className="text-center mt-8 pb-4">
+          <div className="text-center mt-6 sm:mt-8 pb-4">
             <p className="text-sm text-muted-foreground font-radikal">
               Made with ❤️ by <span className="font-semibold text-foreground">ataya гзл</span>
             </p>
