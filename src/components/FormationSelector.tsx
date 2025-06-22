@@ -18,7 +18,7 @@ const FormationSelector: React.FC<FormationSelectorProps> = ({
   return (
     <div className="space-y-3">
       <h3 className="text-lg font-semibold">Formation Presets</h3>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {formations.map((formation) => (
           <Card
             key={formation.id}
