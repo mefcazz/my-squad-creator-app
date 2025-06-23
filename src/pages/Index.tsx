@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Users, Zap, Save, Download, Camera, Palette } from 'lucide-react';
+import { Plus, Users, Zap, Save, Download, Camera, Palette, MapPin } from 'lucide-react';
 import SoccerField from '@/components/SoccerField';
 import PlayerCard from '@/components/PlayerCard';
 import PlayerForm from '@/components/PlayerForm';
 import FormationSelector from '@/components/FormationSelector';
+import PositionAssignment from '@/components/PositionAssignment';
 import { Player, Team } from '@/types/soccer';
 import { formations } from '@/data/formations';
 import { toast } from 'sonner';
@@ -103,13 +104,54 @@ const Index = () => {
     }));
   };
 
+  const handleUpdatePlayerPosition = (playerId: string, position: string) => {
+    setTeam(prev => ({
+      ...prev,
+      players: prev.players.map(p => 
+        p.id === playerId ? { ...p, position } : p
+      )
+    }));
+    
+    toast.success('Player position updated!');
+  };
+
   const handleFormationChange = (formationId: string) => {
     const formation = formations.find(f => f.id === formationId);
     if (!formation) return;
 
-    // Update player positions based on formation
-    const updatedPlayers = team.players.map((player, index) => {
-      const formationPosition = formation.positions[index];
+    // Group players by position priority
+    const positionPriority: { [key: string]: number } = {
+      'Goalkeeper': 1,
+      'Right Back': 2, 'Center Back': 2, 'Left Back': 2,
+      'Defensive Midfielder': 3, 'Central Midfielder': 4, 'Attacking Midfielder': 5,
+      'Right Midfielder': 4, 'Left Midfielder': 4,
+      'Right Winger': 6, 'Left Winger': 6,
+      'Striker': 7, 'Center Forward': 7, 'Right Striker': 7, 'Left Striker': 7
+    };
+
+    // Sort players by position priority, then by jersey number
+    const sortedPlayers = [...team.players].sort((a, b) => {
+      const aPriority = positionPriority[a.position] || 999;
+      const bPriority = positionPriority[b.position] || 999;
+      if (aPriority !== bPriority) return aPriority - bPriority;
+      return a.jerseyNumber - b.jerseyNumber;
+    });
+
+    // Update player positions based on formation, prioritizing position matching
+    const updatedPlayers = team.players.map((player) => {
+      // First try to match by position
+      const matchingFormationPos = formation.positions.find(fp => 
+        fp.position === player.position && 
+        !sortedPlayers.slice(0, sortedPlayers.indexOf(player)).some(sp => sp.position === fp.position)
+      );
+      
+      if (matchingFormationPos) {
+        return { ...player, x: matchingFormationPos.x, y: matchingFormationPos.y };
+      }
+      
+      // Otherwise assign by sorted order
+      const playerIndex = sortedPlayers.indexOf(player);
+      const formationPosition = formation.positions[playerIndex];
       return formationPosition 
         ? { ...player, x: formationPosition.x, y: formationPosition.y }
         : player;
@@ -144,11 +186,44 @@ const Index = () => {
     if (!fieldRef.current) return;
     
     try {
-      const canvas = await html2canvas(fieldRef.current, {
-        backgroundColor: null,
+      // Create a temporary container for stable rendering
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.width = '800px';
+      tempContainer.style.height = '1200px';
+      tempContainer.style.background = 'white';
+      document.body.appendChild(tempContainer);
+      
+      // Clone the field element
+      const fieldClone = fieldRef.current.cloneNode(true) as HTMLElement;
+      fieldClone.style.position = 'relative';
+      fieldClone.style.width = '100%';
+      fieldClone.style.height = '100%';
+      
+      // Fix text positioning in the clone
+      const playerElements = fieldClone.querySelectorAll('[data-player]');
+      playerElements.forEach((element) => {
+        const htmlElement = element as HTMLElement;
+        htmlElement.style.position = 'absolute';
+        htmlElement.style.transform = 'translate(-50%, -50%)';
+        htmlElement.style.zIndex = '10';
+      });
+      
+      tempContainer.appendChild(fieldClone);
+      
+      const canvas = await html2canvas(tempContainer, {
+        backgroundColor: 'white',
         scale: 2,
         useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: 800,
+        height: 1200,
       });
+      
+      document.body.removeChild(tempContainer);
       
       const link = document.createElement('a');
       link.download = `${team.name}_lineup.png`;
@@ -157,6 +232,7 @@ const Index = () => {
       
       toast.success('Lineup image downloaded!');
     } catch (error) {
+      console.error('Download error:', error);
       toast.error('Failed to download image');
     }
   };
@@ -242,10 +318,14 @@ const Index = () => {
             {/* Sidebar */}
             <div className="order-2 lg:order-none space-y-4 sm:space-y-6">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-muted/50 h-auto">
+                <TabsList className="grid w-full grid-cols-4 bg-muted/50 h-auto">
                   <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2">
                     <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Players</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Positions</span>
                   </TabsTrigger>
                   <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2">
                     <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -288,6 +368,20 @@ const Index = () => {
                           />
                         ))
                       )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="positions" className="mt-4">
+                  <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+                    <CardHeader className="p-4">
+                      <CardTitle className="font-radikal text-sm sm:text-base">Assign Positions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0 max-h-96 overflow-y-auto">
+                      <PositionAssignment
+                        players={team.players}
+                        onUpdatePlayerPosition={handleUpdatePlayerPosition}
+                      />
                     </CardContent>
                   </Card>
                 </TabsContent>
