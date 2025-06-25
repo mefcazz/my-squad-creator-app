@@ -9,13 +9,15 @@ interface SoccerFieldProps {
   onPlayerMove: (playerId: string, x: number, y: number) => void;
   fieldColor?: string;
   className?: string;
+  playerSize?: number;
 }
 
 const SoccerField: React.FC<SoccerFieldProps> = ({
   players,
   onPlayerMove,
   fieldColor = 'from-red-900 via-red-950 to-red-900',
-  className
+  className,
+  playerSize = 48
 }) => {
   const handleDragStart = (e: React.DragEvent, playerId: string) => {
     e.dataTransfer.setData('text/plain', playerId);
@@ -155,22 +157,42 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
           <div className="flex flex-col items-center pointer-events-none">
             <div className="relative">
               {player.profilePhoto ? (
-                <Avatar className="w-12 h-12 border border-white shadow-lg hover:scale-110 transition-transform pointer-events-none">
+                <Avatar 
+                  className="border border-white shadow-lg hover:scale-110 transition-transform pointer-events-none"
+                  style={{ width: `${playerSize}px`, height: `${playerSize}px` }}
+                >
                   <AvatarImage src={player.profilePhoto} alt={player.name} className="pointer-events-none" />
                   <AvatarFallback className="bg-red-600 text-white font-bold pointer-events-none">
                     {player.name[0]?.toUpperCase() || '?'}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <div className="w-12 h-12 rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold text-sm shadow-lg hover:scale-110 transition-transform pointer-events-none">
+                <div 
+                  className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg hover:scale-110 transition-transform pointer-events-none"
+                  style={{ 
+                    width: `${playerSize}px`, 
+                    height: `${playerSize}px`,
+                    fontSize: `${Math.max(10, playerSize * 0.25)}px`
+                  }}
+                >
                   {player.jerseyNumber}
                 </div>
               )}
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold border border-white pointer-events-none">
+              <div 
+                className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white pointer-events-none"
+                style={{ 
+                  width: `${Math.max(16, playerSize * 0.35)}px`, 
+                  height: `${Math.max(16, playerSize * 0.35)}px`,
+                  fontSize: `${Math.max(8, playerSize * 0.2)}px`
+                }}
+              >
                 {player.jerseyNumber}
               </div>
             </div>
-            <div className="mt-1 px-2 py-0.5 text-xs font-medium text-white whitespace-nowrap pointer-events-none drop-shadow-lg">
+            <div 
+              className="mt-1 px-2 py-0.5 font-medium text-white whitespace-nowrap pointer-events-none drop-shadow-lg"
+              style={{ fontSize: `${Math.max(10, playerSize * 0.22)}px` }}
+            >
               {player.name}
             </div>
           </div>

@@ -36,6 +36,7 @@ const Index = () => {
   const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | undefined>();
   const [fieldColor, setFieldColor] = useState('dark');
+  const [playerSize, setPlayerSize] = useState(48);
   const fieldRef = useRef<HTMLDivElement>(null);
 
   // Load team from localStorage on component mount
@@ -181,9 +182,9 @@ const Index = () => {
     if (!fieldRef.current) return;
     
     try {
-      // Phone dimensions (9:16 aspect ratio)
-      const phoneWidth = 720;
-      const phoneHeight = 1280;
+      // Phone dimensions (9:16 aspect ratio) - proper phone size
+      const phoneWidth = 360;
+      const phoneHeight = 640;
       
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'fixed';
@@ -192,29 +193,40 @@ const Index = () => {
       tempContainer.style.width = `${phoneWidth}px`;
       tempContainer.style.height = `${phoneHeight}px`;
       tempContainer.style.background = 'white';
-      tempContainer.style.padding = '40px 20px';
+      tempContainer.style.padding = '20px';
       tempContainer.style.boxSizing = 'border-box';
+      tempContainer.style.display = 'flex';
+      tempContainer.style.flexDirection = 'column';
       document.body.appendChild(tempContainer);
       
       // Add team name header
       const header = document.createElement('div');
       header.style.textAlign = 'center';
-      header.style.marginBottom = '20px';
+      header.style.marginBottom = '15px';
+      header.style.flexShrink = '0';
       header.innerHTML = `
-        <h1 style="font-size: 32px; font-weight: bold; color: #333; margin: 0; font-family: Arial, sans-serif;">
+        <h1 style="font-size: 24px; font-weight: bold; color: #333; margin: 0; font-family: Arial, sans-serif;">
           ${team.name}
         </h1>
-        <p style="font-size: 18px; color: #666; margin: 5px 0 0 0; font-family: Arial, sans-serif;">
+        <p style="font-size: 14px; color: #666; margin: 5px 0 0 0; font-family: Arial, sans-serif;">
           Team Lineup
         </p>
       `;
       tempContainer.appendChild(header);
       
+      const fieldContainer = document.createElement('div');
+      fieldContainer.style.flex = '1';
+      fieldContainer.style.display = 'flex';
+      fieldContainer.style.alignItems = 'center';
+      fieldContainer.style.justifyContent = 'center';
+      fieldContainer.style.marginBottom = '15px';
+      
       const fieldClone = fieldRef.current.cloneNode(true) as HTMLElement;
       fieldClone.style.position = 'relative';
       fieldClone.style.width = '100%';
-      fieldClone.style.height = `${phoneHeight - 160}px`;
-      fieldClone.style.margin = '0 auto';
+      fieldClone.style.maxWidth = `${phoneWidth - 40}px`;
+      fieldClone.style.height = 'auto';
+      fieldClone.style.aspectRatio = '2/3';
       
       // Fix all player positions and text
       const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
@@ -223,18 +235,23 @@ const Index = () => {
         htmlElement.style.position = 'absolute';
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
-        
-        // Fix text positioning
-        const textElement = htmlElement.querySelector('div:last-child') as HTMLElement;
-        if (textElement) {
-          textElement.style.position = 'relative';
-          textElement.style.marginTop = '4px';
-          textElement.style.fontSize = '12px';
-          textElement.style.whiteSpace = 'nowrap';
-        }
       });
       
-      tempContainer.appendChild(fieldClone);
+      fieldContainer.appendChild(fieldClone);
+      tempContainer.appendChild(fieldContainer);
+      
+      // Add watermark at the bottom
+      const watermark = document.createElement('div');
+      watermark.style.textAlign = 'center';
+      watermark.style.flexShrink = '0';
+      watermark.style.paddingTop = '10px';
+      watermark.style.borderTop = '1px solid #eee';
+      watermark.innerHTML = `
+        <p style="font-size: 12px; color: #999; margin: 0; font-family: Arial, sans-serif;">
+          Made by TeamLineup by ataya
+        </p>
+      `;
+      tempContainer.appendChild(watermark);
       
       const canvas = await html2canvas(tempContainer, {
         backgroundColor: 'white',
@@ -329,6 +346,7 @@ const Index = () => {
                       onPlayerMove={handlePlayerMove}
                       fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
                       className="mb-4"
+                      playerSize={playerSize}
                     />
                   </div>
                   <div className="text-center text-xs sm:text-sm text-muted-foreground font-radikal">
@@ -341,7 +359,7 @@ const Index = () => {
             {/* Sidebar */}
             <div className="order-2 lg:order-none space-y-4 sm:space-y-6">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-muted/50 h-auto">
+                <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-auto">
                   <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2">
                     <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Players</span>
@@ -357,6 +375,10 @@ const Index = () => {
                   <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2">
                     <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Field</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="players-size" className="font-radikal text-xs sm:text-sm p-2">
+                    <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Size</span>
                   </TabsTrigger>
                 </TabsList>
                 
@@ -451,6 +473,65 @@ const Index = () => {
                       <div className="space-y-2">
                         <Label className="font-radikal">Preview</Label>
                         <div className={`w-full h-16 rounded bg-gradient-to-r ${fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color} border-2 border-white/20`}></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="players-size" className="mt-4">
+                  <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+                    <CardHeader className="p-4">
+                      <CardTitle className="font-radikal text-sm sm:text-base">Player Size</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 p-4 pt-0">
+                      <div className="space-y-2">
+                        <Label htmlFor="player-size" className="font-radikal">Adjust Player Size</Label>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-muted-foreground font-radikal">Small</span>
+                            <input
+                              type="range"
+                              id="player-size"
+                              min="24"
+                              max="72"
+                              step="4"
+                              value={playerSize}
+                              onChange={(e) => setPlayerSize(Number(e.target.value))}
+                              className="flex-1"
+                            />
+                            <span className="text-sm text-muted-foreground font-radikal">Large</span>
+                          </div>
+                          <div className="text-center text-sm text-muted-foreground font-radikal">
+                            Current size: {playerSize}px
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-radikal">Preview</Label>
+                        <div className="flex justify-center p-4 bg-muted/20 rounded">
+                          <div className="relative">
+                            <div 
+                              className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg"
+                              style={{ 
+                                width: `${playerSize}px`, 
+                                height: `${playerSize}px`,
+                                fontSize: `${Math.max(10, playerSize * 0.25)}px`
+                              }}
+                            >
+                              10
+                            </div>
+                            <div 
+                              className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white"
+                              style={{ 
+                                width: `${Math.max(16, playerSize * 0.35)}px`, 
+                                height: `${Math.max(16, playerSize * 0.35)}px`,
+                                fontSize: `${Math.max(8, playerSize * 0.2)}px`
+                              }}
+                            >
+                              10
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
