@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -27,12 +26,10 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
     const touch = e.touches[0];
     const element = e.currentTarget as HTMLElement;
     
-    // Store initial touch position
     element.dataset.touchStartX = touch.clientX.toString();
     element.dataset.touchStartY = touch.clientY.toString();
     element.dataset.playerId = playerId;
     
-    // Add touch move and end listeners
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd, { passive: false });
   };
@@ -47,7 +44,6 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
     const x = ((touch.clientX - rect.left) / rect.width) * 100;
     const y = ((touch.clientY - rect.top) / rect.height) * 100;
 
-    // Find the dragging element
     const draggingElement = document.querySelector('[data-dragging="true"]') as HTMLElement;
     if (draggingElement) {
       draggingElement.style.left = `${Math.max(5, Math.min(95, x))}%`;
@@ -153,6 +149,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
             e.currentTarget.setAttribute('data-dragging', 'true');
             e.currentTarget.setAttribute('data-player-id', player.id);
           }}
+          data-player="true"
         >
           <div className="flex flex-col items-center pointer-events-none">
             <div className="relative">
@@ -171,6 +168,9 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
               <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold border border-white pointer-events-none">
                 {player.jerseyNumber}
               </div>
+            </div>
+            <div className="mt-1 px-2 py-0.5 bg-white/90 rounded text-xs font-medium text-gray-800 whitespace-nowrap pointer-events-none">
+              {player.name}
             </div>
           </div>
         </div>

@@ -119,17 +119,15 @@ const Index = () => {
     const formation = formations.find(f => f.id === formationId);
     if (!formation) return;
 
-    // Group players by position priority
     const positionPriority: { [key: string]: number } = {
       'Goalkeeper': 1,
-      'Right Back': 2, 'Center Back': 2, 'Left Back': 2,
-      'Defensive Midfielder': 3, 'Central Midfielder': 4, 'Attacking Midfielder': 5,
-      'Right Midfielder': 4, 'Left Midfielder': 4,
-      'Right Winger': 6, 'Left Winger': 6,
-      'Striker': 7, 'Center Forward': 7, 'Right Striker': 7, 'Left Striker': 7
+      'Defender': 2,
+      'Right Flank': 3, 'Left Flank': 3,
+      'Universal': 4,
+      'Winger': 5,
+      'Pivot': 6
     };
 
-    // Sort players by position priority, then by jersey number
     const sortedPlayers = [...team.players].sort((a, b) => {
       const aPriority = positionPriority[a.position] || 999;
       const bPriority = positionPriority[b.position] || 999;
@@ -137,9 +135,7 @@ const Index = () => {
       return a.jerseyNumber - b.jerseyNumber;
     });
 
-    // Update player positions based on formation, prioritizing position matching
     const updatedPlayers = team.players.map((player) => {
-      // First try to match by position
       const matchingFormationPos = formation.positions.find(fp => 
         fp.position === player.position && 
         !sortedPlayers.slice(0, sortedPlayers.indexOf(player)).some(sp => sp.position === fp.position)
@@ -149,7 +145,6 @@ const Index = () => {
         return { ...player, x: matchingFormationPos.x, y: matchingFormationPos.y };
       }
       
-      // Otherwise assign by sorted order
       const playerIndex = sortedPlayers.indexOf(player);
       const formationPosition = formation.positions[playerIndex];
       return formationPosition 
@@ -186,29 +181,57 @@ const Index = () => {
     if (!fieldRef.current) return;
     
     try {
-      // Create a temporary container for stable rendering
+      // Phone dimensions (9:16 aspect ratio)
+      const phoneWidth = 720;
+      const phoneHeight = 1280;
+      
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'fixed';
       tempContainer.style.top = '-9999px';
       tempContainer.style.left = '-9999px';
-      tempContainer.style.width = '800px';
-      tempContainer.style.height = '1200px';
+      tempContainer.style.width = `${phoneWidth}px`;
+      tempContainer.style.height = `${phoneHeight}px`;
       tempContainer.style.background = 'white';
+      tempContainer.style.padding = '40px 20px';
+      tempContainer.style.boxSizing = 'border-box';
       document.body.appendChild(tempContainer);
       
-      // Clone the field element
+      // Add team name header
+      const header = document.createElement('div');
+      header.style.textAlign = 'center';
+      header.style.marginBottom = '20px';
+      header.innerHTML = `
+        <h1 style="font-size: 32px; font-weight: bold; color: #333; margin: 0; font-family: Arial, sans-serif;">
+          ${team.name}
+        </h1>
+        <p style="font-size: 18px; color: #666; margin: 5px 0 0 0; font-family: Arial, sans-serif;">
+          Team Lineup
+        </p>
+      `;
+      tempContainer.appendChild(header);
+      
       const fieldClone = fieldRef.current.cloneNode(true) as HTMLElement;
       fieldClone.style.position = 'relative';
       fieldClone.style.width = '100%';
-      fieldClone.style.height = '100%';
+      fieldClone.style.height = `${phoneHeight - 160}px`;
+      fieldClone.style.margin = '0 auto';
       
-      // Fix text positioning in the clone
-      const playerElements = fieldClone.querySelectorAll('[data-player]');
+      // Fix all player positions and text
+      const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
       playerElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
         htmlElement.style.position = 'absolute';
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
+        
+        // Fix text positioning
+        const textElement = htmlElement.querySelector('div:last-child') as HTMLElement;
+        if (textElement) {
+          textElement.style.position = 'relative';
+          textElement.style.marginTop = '4px';
+          textElement.style.fontSize = '12px';
+          textElement.style.whiteSpace = 'nowrap';
+        }
       });
       
       tempContainer.appendChild(fieldClone);
@@ -219,8 +242,8 @@ const Index = () => {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        width: 800,
-        height: 1200,
+        width: phoneWidth,
+        height: phoneHeight,
       });
       
       document.body.removeChild(tempContainer);

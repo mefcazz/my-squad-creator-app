@@ -12,20 +12,12 @@ interface PositionAssignmentProps {
 
 const positions = [
   'Goalkeeper',
-  'Right Back',
-  'Center Back', 
-  'Left Back',
-  'Defensive Midfielder',
-  'Central Midfielder',
-  'Attacking Midfielder',
-  'Right Midfielder',
-  'Left Midfielder',
-  'Right Winger',
-  'Left Winger',
-  'Striker',
-  'Center Forward',
-  'Right Striker',
-  'Left Striker'
+  'Pivot',
+  'Left Flank',
+  'Right Flank',
+  'Universal',
+  'Defender',
+  'Winger'
 ];
 
 const PositionAssignment: React.FC<PositionAssignmentProps> = ({
