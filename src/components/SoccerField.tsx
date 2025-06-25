@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -95,10 +96,10 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
       {/* Field markings */}
       <div className="absolute inset-0">
         {/* Outer field boundary */}
-        <div className="absolute inset-2 border-2 border-white rounded-sm"></div>
+        <div className="absolute inset-2 border border-white rounded-sm"></div>
         
         {/* Center circle */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
         
         {/* Center line (horizontal) */}
@@ -106,31 +107,31 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
         
         {/* Goals */}
         {/* Top goal */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-b-0 border-white rounded-t-sm"></div>
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border border-b-0 border-white rounded-t-sm"></div>
         {/* Bottom goal */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-t-0 border-white rounded-b-sm"></div>
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border border-t-0 border-white rounded-b-sm"></div>
         
         {/* Penalty areas */}
         {/* Top penalty area */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-t-0 border-white"></div>
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-40 h-16 border border-t-0 border-white"></div>
         {/* Bottom penalty area */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-b-0 border-white"></div>
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-40 h-16 border border-b-0 border-white"></div>
         
         {/* Six-yard boxes */}
         {/* Top six-yard box */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-t-0 border-white"></div>
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-8 border border-t-0 border-white"></div>
         {/* Bottom six-yard box */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-b-0 border-white"></div>
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-8 border border-b-0 border-white"></div>
         
         {/* Penalty spots */}
         <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         
         {/* Corner arcs */}
-        <div className="absolute top-2 left-2 w-4 h-4 border-b-2 border-r-2 border-white rounded-br-full"></div>
-        <div className="absolute top-2 right-2 w-4 h-4 border-b-2 border-l-2 border-white rounded-bl-full"></div>
-        <div className="absolute bottom-2 left-2 w-4 h-4 border-t-2 border-r-2 border-white rounded-tr-full"></div>
-        <div className="absolute bottom-2 right-2 w-4 h-4 border-t-2 border-l-2 border-white rounded-tl-full"></div>
+        <div className="absolute top-2 left-2 w-4 h-4 border-b border-r border-white rounded-br-full"></div>
+        <div className="absolute top-2 right-2 w-4 h-4 border-b border-l border-white rounded-bl-full"></div>
+        <div className="absolute bottom-2 left-2 w-4 h-4 border-t border-r border-white rounded-tr-full"></div>
+        <div className="absolute bottom-2 right-2 w-4 h-4 border-t border-l border-white rounded-tl-full"></div>
       </div>
 
       {/* Players */}
@@ -169,7 +170,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
                 {player.jerseyNumber}
               </div>
             </div>
-            <div className="mt-1 px-2 py-0.5 bg-white/90 rounded text-xs font-medium text-gray-800 whitespace-nowrap pointer-events-none">
+            <div className="mt-1 px-2 py-0.5 text-xs font-medium text-white whitespace-nowrap pointer-events-none drop-shadow-lg">
               {player.name}
             </div>
           </div>
