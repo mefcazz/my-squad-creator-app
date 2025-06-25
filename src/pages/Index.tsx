@@ -192,24 +192,43 @@ const Index = () => {
       tempContainer.style.left = '-9999px';
       tempContainer.style.width = `${phoneWidth}px`;
       tempContainer.style.height = `${phoneHeight}px`;
-      tempContainer.style.background = 'white';
+      
+      // Use the same background color as the field
+      const currentFieldColor = fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color;
+      tempContainer.style.background = `linear-gradient(to bottom, ${currentFieldColor.replace('from-', '').replace('via-', '').replace('to-', '').split(' ').map(color => {
+        // Convert Tailwind color classes to actual colors
+        if (color.includes('red-900')) return '#7f1d1d';
+        if (color.includes('red-950')) return '#450a0a';
+        if (color.includes('green-700')) return '#15803d';
+        if (color.includes('green-800')) return '#166534';
+        if (color.includes('blue-700')) return '#1d4ed8';
+        if (color.includes('blue-800')) return '#1e40af';
+        if (color.includes('purple-700')) return '#7c3aed';
+        if (color.includes('purple-800')) return '#6b21a8';
+        if (color.includes('emerald-700')) return '#047857';
+        if (color.includes('emerald-800')) return '#065f46';
+        if (color.includes('orange-700')) return '#c2410c';
+        if (color.includes('orange-800')) return '#9a3412';
+        return '#7f1d1d'; // fallback
+      }).join(', ')})`;
+      
       tempContainer.style.padding = '20px';
       tempContainer.style.boxSizing = 'border-box';
       tempContainer.style.display = 'flex';
       tempContainer.style.flexDirection = 'column';
       document.body.appendChild(tempContainer);
       
-      // Add team name header
+      // Add team name header with elegant font
       const header = document.createElement('div');
       header.style.textAlign = 'center';
       header.style.marginBottom = '15px';
       header.style.flexShrink = '0';
       header.innerHTML = `
-        <h1 style="font-size: 24px; font-weight: bold; color: #333; margin: 0; font-family: Arial, sans-serif;">
+        <h1 style="font-size: 28px; font-weight: 700; color: white; margin: 0; font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
           ${team.name}
         </h1>
-        <p style="font-size: 14px; color: #666; margin: 5px 0 0 0; font-family: Arial, sans-serif;">
-          Team Lineup
+        <p style="font-size: 16px; color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-family: Arial, sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+          teamLineup by ataya
         </p>
       `;
       tempContainer.appendChild(header);
@@ -228,33 +247,28 @@ const Index = () => {
       fieldClone.style.height = 'auto';
       fieldClone.style.aspectRatio = '2/3';
       
-      // Fix all player positions and text
+      // Fix all player positions and text positioning
       const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
       playerElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
         htmlElement.style.position = 'absolute';
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
+        
+        // Fix text positioning - ensure names are properly positioned
+        const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
+        if (nameElement) {
+          nameElement.style.marginTop = '4px';
+          nameElement.style.textAlign = 'center';
+          nameElement.style.lineHeight = '1.2';
+        }
       });
       
       fieldContainer.appendChild(fieldClone);
       tempContainer.appendChild(fieldContainer);
       
-      // Add watermark at the bottom
-      const watermark = document.createElement('div');
-      watermark.style.textAlign = 'center';
-      watermark.style.flexShrink = '0';
-      watermark.style.paddingTop = '10px';
-      watermark.style.borderTop = '1px solid #eee';
-      watermark.innerHTML = `
-        <p style="font-size: 12px; color: #999; margin: 0; font-family: Arial, sans-serif;">
-          Made by TeamLineup by ataya
-        </p>
-      `;
-      tempContainer.appendChild(watermark);
-      
       const canvas = await html2canvas(tempContainer, {
-        backgroundColor: 'white',
+        backgroundColor: null,
         scale: 2,
         useCORS: true,
         allowTaint: true,
