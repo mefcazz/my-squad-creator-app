@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -113,7 +112,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
     >
       {/* Field markings */}
       <div className="absolute inset-0">
-        {/* Outer field boundary - ensuring lines touch the border */}
+        {/* Outer field boundary */}
         <div className="absolute inset-0 border-2 border-white rounded-lg"></div>
         
         {/* Center circle */}
@@ -125,37 +124,37 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
         
         {/* Goals */}
         {/* Top goal */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-t-0 border-white"></div>
+        <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-t-0 border-white"></div>
         {/* Bottom goal */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-b-0 border-white"></div>
+        <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-b-0 border-white"></div>
         
         {/* Penalty areas */}
         {/* Top penalty area */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-t-0 border-white"></div>
+        <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-t-0 border-white"></div>
         {/* Bottom penalty area */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-b-0 border-white"></div>
+        <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-b-0 border-white"></div>
         
         {/* Six-yard boxes */}
         {/* Top six-yard box */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-t-0 border-white"></div>
+        <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-t-0 border-white"></div>
         {/* Bottom six-yard box */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-b-0 border-white"></div>
+        <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-b-0 border-white"></div>
         
         {/* Penalty spots */}
-        <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
-        <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
+        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         
-        {/* Penalty arc lines (corrected orientation - arcs open toward goals) */}
-        {/* Top penalty arc - opens upward toward goal */}
-        <div className="absolute top-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-b-2 border-white rounded-b-full"></div>
-        {/* Bottom penalty arc - opens downward toward goal */}
-        <div className="absolute bottom-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-t-2 border-white rounded-t-full"></div>
+        {/* Penalty arc lines - connected to penalty area */}
+        {/* Top penalty arc */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-8 border-b-2 border-white rounded-b-full"></div>
+        {/* Bottom penalty arc */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-8 border-t-2 border-white rounded-t-full"></div>
         
-        {/* Corner arcs */}
-        <div className="absolute top-0 left-0 w-4 h-4 border-b-2 border-r-2 border-white rounded-br-full"></div>
-        <div className="absolute top-0 right-0 w-4 h-4 border-b-2 border-l-2 border-white rounded-bl-full"></div>
-        <div className="absolute bottom-0 left-0 w-4 h-4 border-t-2 border-r-2 border-white rounded-tr-full"></div>
-        <div className="absolute bottom-0 right-0 w-4 h-4 border-t-2 border-l-2 border-white rounded-tl-full"></div>
+        {/* Corner arcs - made bigger */}
+        <div className="absolute -top-0.5 -left-0.5 w-6 h-6 border-b-2 border-r-2 border-white rounded-br-full"></div>
+        <div className="absolute -top-0.5 -right-0.5 w-6 h-6 border-b-2 border-l-2 border-white rounded-bl-full"></div>
+        <div className="absolute -bottom-0.5 -left-0.5 w-6 h-6 border-t-2 border-r-2 border-white rounded-tr-full"></div>
+        <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-t-2 border-l-2 border-white rounded-tl-full"></div>
       </div>
 
       {/* Players */}

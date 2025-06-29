@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,11 +37,11 @@ const Index = () => {
   const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | undefined>();
   const [fieldColor, setFieldColor] = useState('dark');
+  const [customFieldColor, setCustomFieldColor] = useState('#7f1d1d');
   const [playerSize, setPlayerSize] = useState(48);
   const [showJerseyNumbers, setShowJerseyNumbers] = useState(true);
   const [rotateField, setRotateField] = useState(false);
   const fieldRef = useRef<HTMLDivElement>(null);
-  const previewFieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedTeam = localStorage.getItem('soccerTeam');
@@ -181,11 +180,18 @@ const Index = () => {
     setTeam(prev => ({ ...prev, name }));
   };
 
+  const getCurrentFieldColor = () => {
+    if (fieldColor === 'custom') {
+      // Convert hex to gradient
+      return `from-[${customFieldColor}] via-[${customFieldColor}]/90 to-[${customFieldColor}]`;
+    }
+    return fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color;
+  };
+
   const downloadFieldAsImage = async () => {
-    if (!previewFieldRef.current) return;
+    if (!fieldRef.current) return;
     
     try {
-      // Phone dimensions (9:16 aspect ratio) - proper phone size
       const phoneWidth = 360;
       const phoneHeight = 640;
       
@@ -195,33 +201,7 @@ const Index = () => {
       tempContainer.style.left = '-9999px';
       tempContainer.style.width = `${phoneWidth}px`;
       tempContainer.style.height = `${phoneHeight}px`;
-      
-      // Use the same background color as the field
-      const currentFieldColor = fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color;
-      
-      // Convert Tailwind gradient to actual CSS gradient
-      const getColorValue = (colorClass: string) => {
-        if (colorClass.includes('red-900')) return '#7f1d1d';
-        if (colorClass.includes('red-950')) return '#450a0a';
-        if (colorClass.includes('green-700')) return '#15803d';
-        if (colorClass.includes('green-800')) return '#166534';
-        if (colorClass.includes('blue-700')) return '#1d4ed8';
-        if (colorClass.includes('blue-800')) return '#1e40af';
-        if (colorClass.includes('purple-700')) return '#7c3aed';
-        if (colorClass.includes('purple-800')) return '#6b21a8';
-        if (colorClass.includes('emerald-700')) return '#047857';
-        if (colorClass.includes('emerald-800')) return '#065f46';
-        if (colorClass.includes('orange-700')) return '#c2410c';
-        if (colorClass.includes('orange-800')) return '#9a3412';
-        return '#7f1d1d';
-      };
-      
-      const gradientParts = currentFieldColor.split(' ');
-      const fromColor = getColorValue(gradientParts.find(part => part.startsWith('from-'))?.replace('from-', '') || '');
-      const viaColor = getColorValue(gradientParts.find(part => part.startsWith('via-'))?.replace('via-', '') || '');
-      const toColor = getColorValue(gradientParts.find(part => part.startsWith('to-'))?.replace('to-', '') || '');
-      
-      tempContainer.style.background = `linear-gradient(to bottom, ${fromColor}, ${viaColor}, ${toColor})`;
+      tempContainer.style.backgroundColor = '#000';
       tempContainer.style.padding = '20px';
       tempContainer.style.boxSizing = 'border-box';
       tempContainer.style.display = 'flex';
@@ -248,63 +228,34 @@ const Index = () => {
       fieldContainer.style.display = 'flex';
       fieldContainer.style.alignItems = 'center';
       fieldContainer.style.justifyContent = 'center';
-      fieldContainer.style.marginBottom = '15px';
       
-      // Create a properly sized field clone
-      const fieldWrapper = document.createElement('div');
-      fieldWrapper.style.width = `${phoneWidth - 40}px`;
-      fieldWrapper.style.height = `${(phoneWidth - 40) * 1.5}px`; // 2:3 aspect ratio
-      fieldWrapper.style.position = 'relative';
-      
-      // Clone and style the field
-      const fieldClone = previewFieldRef.current.cloneNode(true) as HTMLElement;
-      fieldClone.style.position = 'absolute';
-      fieldClone.style.top = '0';
-      fieldClone.style.left = '0';
-      fieldClone.style.width = '100%';
-      fieldClone.style.height = '100%';
-      fieldClone.style.transform = 'none';
-      
-      // Fix all player positions and text positioning
-      const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
-      playerElements.forEach((element) => {
-        const htmlElement = element as HTMLElement;
-        htmlElement.style.position = 'absolute';
-        htmlElement.style.transform = 'translate(-50%, -50%)';
-        htmlElement.style.zIndex = '10';
+      // Clone the actual field
+      const fieldClone = fieldRef.current.querySelector('[data-field="true"]')?.cloneNode(true) as HTMLElement;
+      if (fieldClone) {
+        fieldClone.style.width = `${phoneWidth - 40}px`;
+        fieldClone.style.height = `${(phoneWidth - 40) * 1.5}px`;
+        fieldClone.style.position = 'relative';
+        fieldClone.style.transform = 'none';
         
-        // Fix text positioning with perfect centering
-        const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
-        if (nameElement) {
-          nameElement.style.position = 'relative';
-          nameElement.style.left = '0';
-          nameElement.style.right = '0';
-          nameElement.style.marginTop = '8px'; // Increased margin for better positioning
-          nameElement.style.textAlign = 'center';
-          nameElement.style.lineHeight = '1.2';
-          nameElement.style.display = 'block';
-          nameElement.style.width = '100%';
-          nameElement.style.fontFamily = 'Arial, sans-serif';
-          nameElement.style.fontWeight = '700';
-          nameElement.style.letterSpacing = '0.025em';
-          nameElement.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
-        }
-
-        // Handle jersey number visibility
-        if (!showJerseyNumbers) {
-          const jerseyElement = htmlElement.querySelector('.absolute.-bottom-1.-right-1') as HTMLElement;
-          if (jerseyElement) {
-            jerseyElement.style.display = 'none';
+        // Fix player positioning in clone
+        const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
+        playerElements.forEach((element) => {
+          const htmlElement = element as HTMLElement;
+          const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
+          if (nameElement) {
+            nameElement.style.marginTop = '10px';
+            nameElement.style.textAlign = 'center';
+            nameElement.style.width = '100%';
           }
-        }
-      });
+        });
+        
+        fieldContainer.appendChild(fieldClone);
+      }
       
-      fieldWrapper.appendChild(fieldClone);
-      fieldContainer.appendChild(fieldWrapper);
       tempContainer.appendChild(fieldContainer);
       
       const canvas = await html2canvas(tempContainer, {
-        backgroundColor: null,
+        backgroundColor: '#000000',
         scale: 2,
         useCORS: true,
         allowTaint: true,
@@ -436,7 +387,7 @@ const Index = () => {
                     <SoccerField
                       players={team.players}
                       onPlayerMove={handlePlayerMove}
-                      fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
+                      fieldColor={getCurrentFieldColor()}
                       className="mb-4"
                       playerSize={playerSize}
                       showJerseyNumbers={showJerseyNumbers}
@@ -453,7 +404,7 @@ const Index = () => {
             {/* Sidebar */}
             <div className="order-2 lg:order-none space-y-4 sm:space-y-6 animate-fade-in">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-auto transition-all duration-300">
+                <TabsList className="grid w-full grid-cols-4 bg-muted/50 h-auto transition-all duration-300">
                   <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Players</span>
@@ -469,10 +420,6 @@ const Index = () => {
                   <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Field</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="preview" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
-                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Preview</span>
                   </TabsTrigger>
                 </TabsList>
                 
@@ -563,53 +510,51 @@ const Index = () => {
                                 </div>
                               </SelectItem>
                             ))}
+                            <SelectItem value="custom" className="font-radikal">
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded" style={{ backgroundColor: customFieldColor }}></div>
+                                Custom Color
+                              </div>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-2">
-                        <Label className="font-radikal">Preview</Label>
-                        <div className={`w-full h-16 rounded bg-gradient-to-r ${fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color} border-2 border-white/20 transition-all duration-300`}></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="preview" className="mt-4 animate-fade-in transition-all duration-300">
-                  <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                    <CardHeader className="p-4">
-                      <CardTitle className="font-radikal text-sm sm:text-base">Download Preview</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 p-4 pt-0">
-                      <div className="space-y-2">
-                        <Label className="font-radikal">Preview (Phone Format)</Label>
-                        <div className="bg-muted/20 rounded-lg p-4 flex justify-center">
-                          <div className="w-32 h-48 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg shadow-lg flex flex-col overflow-hidden">
-                            <div className="p-2 text-center">
-                              <div className="text-white text-xs font-bold truncate">{team.name}</div>
-                              <div className="text-white/70 text-[8px]">teamLineup by ataya</div>
-                            </div>
-                            <div className="flex-1 p-1">
-                              <div ref={previewFieldRef} className="scale-[0.15] origin-top-left">
-                                <SoccerField
-                                  players={team.players}
-                                  onPlayerMove={() => {}}
-                                  fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
-                                  playerSize={playerSize}
-                                  showJerseyNumbers={showJerseyNumbers}
-                                  rotateField={rotateField}
-                                />
-                              </div>
-                            </div>
+                      
+                      {fieldColor === 'custom' && (
+                        <div className="space-y-2">
+                          <Label htmlFor="custom-color" className="font-radikal">Custom Color</Label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              id="custom-color"
+                              value={customFieldColor}
+                              onChange={(e) => setCustomFieldColor(e.target.value)}
+                              className="w-12 h-10 rounded border border-border cursor-pointer"
+                            />
+                            <Input
+                              value={customFieldColor}
+                              onChange={(e) => setCustomFieldColor(e.target.value)}
+                              placeholder="#7f1d1d"
+                              className="flex-1"
+                            />
                           </div>
                         </div>
+                      )}
+                      
+                      <div className="space-y-2">
+                        <Label className="font-radikal">Preview</Label>
+                        <div 
+                          className="w-full h-16 rounded border-2 border-white/20 transition-all duration-300"
+                          style={{
+                            background: fieldColor === 'custom' 
+                              ? `linear-gradient(to bottom, ${customFieldColor}, ${customFieldColor}88, ${customFieldColor})`
+                              : `linear-gradient(to right, var(--tw-gradient-stops))`
+                          }}
+                          {...(fieldColor !== 'custom' && {
+                            className: `w-full h-16 rounded bg-gradient-to-r ${getCurrentFieldColor()} border-2 border-white/20 transition-all duration-300`
+                          })}
+                        ></div>
                       </div>
-                      <Button 
-                        onClick={downloadFieldAsImage} 
-                        className="w-full transition-all duration-200 hover:scale-105"
-                      >
-                        <Camera className="h-4 w-4 mr-2" />
-                        Download Image
-                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
