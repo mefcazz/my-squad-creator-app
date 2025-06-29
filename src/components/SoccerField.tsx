@@ -190,8 +190,13 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
               </div>
             </div>
             <div 
-              className="mt-1 px-2 py-0.5 font-medium text-white whitespace-nowrap pointer-events-none drop-shadow-lg"
-              style={{ fontSize: `${Math.max(10, playerSize * 0.22)}px` }}
+              className="mt-1 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none drop-shadow-lg"
+              style={{ 
+                fontSize: `${Math.max(10, playerSize * 0.22)}px`,
+                fontFamily: 'Arial, sans-serif',
+                fontWeight: '700',
+                letterSpacing: '0.025em'
+              }}
             >
               {player.name}
             </div>

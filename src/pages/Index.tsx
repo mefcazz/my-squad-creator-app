@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Users, Zap, Save, Download, Camera, Palette, MapPin } from 'lucide-react';
+import { Plus, Users, Zap, Save, Camera, Palette, MapPin } from 'lucide-react';
 import SoccerField from '@/components/SoccerField';
 import PlayerCard from '@/components/PlayerCard';
 import PlayerForm from '@/components/PlayerForm';
@@ -218,16 +219,16 @@ const Index = () => {
       tempContainer.style.flexDirection = 'column';
       document.body.appendChild(tempContainer);
       
-      // Add team name header with elegant font
+      // Add team name header with elegant font matching main title
       const header = document.createElement('div');
       header.style.textAlign = 'center';
       header.style.marginBottom = '15px';
       header.style.flexShrink = '0';
       header.innerHTML = `
-        <h1 style="font-size: 28px; font-weight: 700; color: white; margin: 0; font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+        <h1 style="font-size: 28px; font-weight: 700; color: white; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
           ${team.name}
         </h1>
-        <p style="font-size: 16px; color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-family: Arial, sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+        <p style="font-size: 14px; color: rgba(255,255,255,0.9); margin: 6px 0 0 0; font-family: 'Inter', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
           teamLineup by ataya
         </p>
       `;
@@ -255,12 +256,16 @@ const Index = () => {
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
         
-        // Fix text positioning - ensure names are properly positioned
+        // Fix text positioning - ensure names are properly positioned and centered
         const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
         if (nameElement) {
           nameElement.style.marginTop = '4px';
           nameElement.style.textAlign = 'center';
           nameElement.style.lineHeight = '1.2';
+          nameElement.style.transform = 'translateX(0)'; // Reset any transform
+          nameElement.style.left = '50%';
+          nameElement.style.position = 'relative';
+          nameElement.style.transform = 'translateX(-50%)';
         }
       });
       
@@ -327,10 +332,6 @@ const Index = () => {
                     />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <Button onClick={exportTeam} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm">
-                      <Download className="h-4 w-4 mr-1" />
-                      Export JSON
-                    </Button>
                     <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm">
                       <Camera className="h-4 w-4 mr-1" />
                       Download Image
