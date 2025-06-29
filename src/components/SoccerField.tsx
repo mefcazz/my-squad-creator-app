@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -10,6 +9,7 @@ interface SoccerFieldProps {
   fieldColor?: string;
   className?: string;
   playerSize?: number;
+  showJerseyNumbers?: boolean;
 }
 
 const SoccerField: React.FC<SoccerFieldProps> = ({
@@ -17,7 +17,8 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
   onPlayerMove,
   fieldColor = 'from-red-900 via-red-950 to-red-900',
   className,
-  playerSize = 48
+  playerSize = 48,
+  showJerseyNumbers = true
 }) => {
   const handleDragStart = (e: React.DragEvent, playerId: string) => {
     e.dataTransfer.setData('text/plain', playerId);
@@ -90,7 +91,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
 
   return (
     <div 
-      className={cn(`relative w-full aspect-[2/3] bg-gradient-to-b ${fieldColor} rounded-lg overflow-hidden border-2 border-white shadow-lg`, className)} 
+      className={cn(`relative w-full aspect-[2/3] bg-gradient-to-b ${fieldColor} rounded-lg overflow-hidden border-2 border-white shadow-lg transition-all duration-300`, className)} 
       onDrop={handleDrop} 
       onDragOver={handleDragOver}
       data-field="true"
@@ -140,7 +141,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
       {players.map(player => (
         <div 
           key={player.id} 
-          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move select-none" 
+          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move select-none transition-all duration-200 hover:scale-105" 
           style={{
             left: `${player.x}%`,
             top: `${player.y}%`
@@ -178,24 +179,30 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
                   {player.jerseyNumber}
                 </div>
               )}
-              <div 
-                className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white pointer-events-none"
-                style={{ 
-                  width: `${Math.max(16, playerSize * 0.35)}px`, 
-                  height: `${Math.max(16, playerSize * 0.35)}px`,
-                  fontSize: `${Math.max(8, playerSize * 0.2)}px`
-                }}
-              >
-                {player.jerseyNumber}
-              </div>
+              {showJerseyNumbers && (
+                <div 
+                  className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white pointer-events-none transition-all duration-200"
+                  style={{ 
+                    width: `${Math.max(16, playerSize * 0.35)}px`, 
+                    height: `${Math.max(16, playerSize * 0.35)}px`,
+                    fontSize: `${Math.max(8, playerSize * 0.2)}px`
+                  }}
+                >
+                  {player.jerseyNumber}
+                </div>
+              )}
             </div>
             <div 
-              className="mt-1 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none drop-shadow-lg"
+              className="mt-1 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none"
               style={{ 
                 fontSize: `${Math.max(10, playerSize * 0.22)}px`,
                 fontFamily: 'Arial, sans-serif',
                 fontWeight: '700',
-                letterSpacing: '0.025em'
+                letterSpacing: '0.025em',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                textAlign: 'center',
+                display: 'block',
+                width: '100%'
               }}
             >
               {player.name}

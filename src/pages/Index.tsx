@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Users, Zap, Save, Camera, Palette, MapPin } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Plus, Users, Zap, Save, Camera, Palette, MapPin, Hash } from 'lucide-react';
 import SoccerField from '@/components/SoccerField';
 import PlayerCard from '@/components/PlayerCard';
 import PlayerForm from '@/components/PlayerForm';
@@ -38,9 +38,9 @@ const Index = () => {
   const [editingPlayer, setEditingPlayer] = useState<Player | undefined>();
   const [fieldColor, setFieldColor] = useState('dark');
   const [playerSize, setPlayerSize] = useState(48);
+  const [showJerseyNumbers, setShowJerseyNumbers] = useState(true);
   const fieldRef = useRef<HTMLDivElement>(null);
 
-  // Load team from localStorage on component mount
   useEffect(() => {
     const savedTeam = localStorage.getItem('soccerTeam');
     if (savedTeam) {
@@ -48,7 +48,6 @@ const Index = () => {
     }
   }, []);
 
-  // Save team to localStorage whenever team changes
   useEffect(() => {
     localStorage.setItem('soccerTeam', JSON.stringify(team));
   }, [team]);
@@ -64,7 +63,13 @@ const Index = () => {
       players: [...prev.players, newPlayer]
     }));
     
-    toast.success(`${playerData.name} added to the team!`);
+    toast.success(`${playerData.name} added to the team!`, {
+      style: {
+        background: 'linear-gradient(135deg, #10b981, #059669)',
+        color: 'white',
+        border: 'none'
+      }
+    });
   };
 
   const handleEditPlayer = (player: Player) => {
@@ -160,23 +165,17 @@ const Index = () => {
       players: updatedPlayers
     }));
 
-    toast.success(`Formation changed to ${formation.name}`);
+    toast.success(`Formation changed to ${formation.name}`, {
+      style: {
+        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+        color: 'white',
+        border: 'none'
+      }
+    });
   };
 
   const handleTeamNameChange = (name: string) => {
     setTeam(prev => ({ ...prev, name }));
-  };
-
-  const exportTeam = () => {
-    const dataStr = JSON.stringify(team, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${team.name}_lineup.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success('Team lineup exported!');
   };
 
   const downloadFieldAsImage = async () => {
@@ -248,7 +247,7 @@ const Index = () => {
       fieldClone.style.height = 'auto';
       fieldClone.style.aspectRatio = '2/3';
       
-      // Fix all player positions and text positioning
+      // Fix all player positions and text positioning with perfect centering
       const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
       playerElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
@@ -256,16 +255,30 @@ const Index = () => {
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
         
-        // Fix text positioning - ensure names are properly positioned and centered
+        // Fix text positioning with perfect centering
         const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
         if (nameElement) {
+          nameElement.style.position = 'relative';
+          nameElement.style.left = '0';
+          nameElement.style.right = '0';
           nameElement.style.marginTop = '4px';
           nameElement.style.textAlign = 'center';
           nameElement.style.lineHeight = '1.2';
-          nameElement.style.transform = 'translateX(0)'; // Reset any transform
-          nameElement.style.left = '50%';
-          nameElement.style.position = 'relative';
-          nameElement.style.transform = 'translateX(-50%)';
+          nameElement.style.transform = 'none';
+          nameElement.style.display = 'block';
+          nameElement.style.width = '100%';
+          nameElement.style.fontFamily = 'Arial, sans-serif';
+          nameElement.style.fontWeight = '700';
+          nameElement.style.letterSpacing = '0.025em';
+          nameElement.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
+        }
+
+        // Handle jersey number visibility
+        if (!showJerseyNumbers) {
+          const jerseyElement = htmlElement.querySelector('.absolute.-bottom-1.-right-1') as HTMLElement;
+          if (jerseyElement) {
+            jerseyElement.style.display = 'none';
+          }
         }
       });
       
@@ -289,7 +302,13 @@ const Index = () => {
       link.href = canvas.toDataURL();
       link.click();
       
-      toast.success('Lineup image downloaded!');
+      toast.success('Lineup image downloaded!', {
+        style: {
+          background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+          color: 'white',
+          border: 'none'
+        }
+      });
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Failed to download image');
@@ -307,7 +326,7 @@ const Index = () => {
 
       <div className="relative z-10 p-2 sm:p-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
+          <div className="text-center mb-6 sm:mb-8 animate-fade-in">
             <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 font-radikal">
               ⚽ Team Lineup
             </h1>
@@ -317,8 +336,8 @@ const Index = () => {
           </div>
 
           {/* Team Name and Controls */}
-          <div className="mb-4 sm:mb-6">
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+          <div className="mb-4 sm:mb-6 animate-fade-in">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 transition-all duration-300 hover:shadow-lg">
               <CardHeader className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1">
@@ -327,19 +346,19 @@ const Index = () => {
                       id="team-name"
                       value={team.name}
                       onChange={(e) => handleTeamNameChange(e.target.value)}
-                      className="text-lg font-semibold font-radikal sm:max-w-xs"
+                      className="text-lg font-semibold font-radikal sm:max-w-xs transition-all duration-200 focus:scale-105"
                       placeholder="Enter team name"
                     />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm">
+                    <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm transition-all duration-200 hover:scale-105">
                       <Camera className="h-4 w-4 mr-1" />
                       Download Image
                     </Button>
                     <Button
                       onClick={() => setIsPlayerFormOpen(true)}
                       size="sm"
-                      className="font-radikal text-xs sm:text-sm"
+                      className="font-radikal text-xs sm:text-sm transition-all duration-200 hover:scale-105"
                     >
                       <Plus className="h-4 w-4 mr-1" />
                       Add Player
@@ -352,8 +371,8 @@ const Index = () => {
 
           <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Main Field Area */}
-            <div className="order-1 lg:order-none lg:col-span-2">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+            <div className="order-1 lg:order-none lg:col-span-2 animate-fade-in">
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 transition-all duration-300 hover:shadow-lg">
                 <CardContent className="p-3 sm:p-6">
                   <div ref={fieldRef}>
                     <SoccerField
@@ -362,6 +381,7 @@ const Index = () => {
                       fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
                       className="mb-4"
                       playerSize={playerSize}
+                      showJerseyNumbers={showJerseyNumbers}
                     />
                   </div>
                   <div className="text-center text-xs sm:text-sm text-muted-foreground font-radikal">
@@ -372,32 +392,36 @@ const Index = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="order-2 lg:order-none space-y-4 sm:space-y-6">
+            <div className="order-2 lg:order-none space-y-4 sm:space-y-6 animate-fade-in">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-auto">
-                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2">
+                <TabsList className="grid w-full grid-cols-6 bg-muted/50 h-auto">
+                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
                     <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Players</span>
                   </TabsTrigger>
-                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2">
+                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
                     <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Positions</span>
                   </TabsTrigger>
-                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2">
+                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
                     <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Formations</span>
                   </TabsTrigger>
-                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2">
+                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
                     <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Field</span>
                   </TabsTrigger>
-                  <TabsTrigger value="players-size" className="font-radikal text-xs sm:text-sm p-2">
+                  <TabsTrigger value="players-size" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
                     <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Size</span>
                   </TabsTrigger>
+                  <TabsTrigger value="jersey" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
+                    <Hash className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Jersey</span>
+                  </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="players" className="space-y-4 mt-4">
+                <TabsContent value="players" className="space-y-4 mt-4 animate-fade-in">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="flex items-center justify-between font-radikal text-sm sm:text-base">
@@ -406,6 +430,7 @@ const Index = () => {
                           onClick={() => setIsPlayerFormOpen(true)}
                           size="sm"
                           variant="outline"
+                          className="transition-all duration-200 hover:scale-105"
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
@@ -420,19 +445,20 @@ const Index = () => {
                         </div>
                       ) : (
                         team.players.map((player) => (
-                          <PlayerCard
-                            key={player.id}
-                            player={player}
-                            onEdit={handleEditPlayer}
-                            onDelete={handleDeletePlayer}
-                          />
+                          <div key={player.id} className="animate-fade-in">
+                            <PlayerCard
+                              player={player}
+                              onEdit={handleEditPlayer}
+                              onDelete={handleDeletePlayer}
+                            />
+                          </div>
                         ))
                       )}
                     </CardContent>
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="positions" className="mt-4">
+                <TabsContent value="positions" className="mt-4 animate-fade-in">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Assign Positions</CardTitle>
@@ -446,7 +472,7 @@ const Index = () => {
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="formations" className="mt-4">
+                <TabsContent value="formations" className="mt-4 animate-fade-in">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Choose Formation</CardTitle>
@@ -461,7 +487,7 @@ const Index = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="customize" className="mt-4">
+                <TabsContent value="customize" className="mt-4 animate-fade-in">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Field Color</CardTitle>
@@ -470,7 +496,7 @@ const Index = () => {
                       <div className="space-y-2">
                         <Label htmlFor="field-color" className="font-radikal">Choose Field Color</Label>
                         <Select value={fieldColor} onValueChange={setFieldColor}>
-                          <SelectTrigger>
+                          <SelectTrigger className="transition-all duration-200">
                             <SelectValue placeholder="Select field color" />
                           </SelectTrigger>
                           <SelectContent>
@@ -487,13 +513,13 @@ const Index = () => {
                       </div>
                       <div className="space-y-2">
                         <Label className="font-radikal">Preview</Label>
-                        <div className={`w-full h-16 rounded bg-gradient-to-r ${fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color} border-2 border-white/20`}></div>
+                        <div className={`w-full h-16 rounded bg-gradient-to-r ${fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color} border-2 border-white/20 transition-all duration-300`}></div>
                       </div>
                     </CardContent>
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="players-size" className="mt-4">
+                <TabsContent value="players-size" className="mt-4 animate-fade-in">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Player Size</CardTitle>
@@ -512,7 +538,7 @@ const Index = () => {
                               step="4"
                               value={playerSize}
                               onChange={(e) => setPlayerSize(Number(e.target.value))}
-                              className="flex-1"
+                              className="flex-1 transition-all duration-200"
                             />
                             <span className="text-sm text-muted-foreground font-radikal">Large</span>
                           </div>
@@ -524,7 +550,7 @@ const Index = () => {
                       <div className="space-y-2">
                         <Label className="font-radikal">Preview</Label>
                         <div className="flex justify-center p-4 bg-muted/20 rounded">
-                          <div className="relative">
+                          <div className="relative transition-all duration-300">
                             <div 
                               className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg"
                               style={{ 
@@ -535,16 +561,71 @@ const Index = () => {
                             >
                               10
                             </div>
+                            {showJerseyNumbers && (
+                              <div 
+                                className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white transition-all duration-200"
+                                style={{ 
+                                  width: `${Math.max(16, playerSize * 0.35)}px`, 
+                                  height: `${Math.max(16, playerSize * 0.35)}px`,
+                                  fontSize: `${Math.max(8, playerSize * 0.2)}px`
+                                }}
+                              >
+                                10
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="jersey" className="mt-4 animate-fade-in">
+                  <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+                    <CardHeader className="p-4">
+                      <CardTitle className="font-radikal text-sm sm:text-base">Jersey Numbers</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 p-4 pt-0">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="show-jersey" className="font-radikal">Show Jersey Numbers</Label>
+                          <Switch
+                            id="show-jersey"
+                            checked={showJerseyNumbers}
+                            onCheckedChange={setShowJerseyNumbers}
+                            className="transition-all duration-200"
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground font-radikal">
+                          Toggle to show or hide the small jersey number badges on player avatars
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-radikal">Preview</Label>
+                        <div className="flex justify-center p-4 bg-muted/20 rounded">
+                          <div className="relative transition-all duration-300">
                             <div 
-                              className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white"
+                              className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg"
                               style={{ 
-                                width: `${Math.max(16, playerSize * 0.35)}px`, 
-                                height: `${Math.max(16, playerSize * 0.35)}px`,
-                                fontSize: `${Math.max(8, playerSize * 0.2)}px`
+                                width: `${playerSize}px`, 
+                                height: `${playerSize}px`,
+                                fontSize: `${Math.max(10, playerSize * 0.25)}px`
                               }}
                             >
                               10
                             </div>
+                            {showJerseyNumbers && (
+                              <div 
+                                className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white transition-all duration-200"
+                                style={{ 
+                                  width: `${Math.max(16, playerSize * 0.35)}px`, 
+                                  height: `${Math.max(16, playerSize * 0.35)}px`,
+                                  fontSize: `${Math.max(8, playerSize * 0.2)}px`
+                                }}
+                              >
+                                10
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -566,7 +647,7 @@ const Index = () => {
           />
 
           {/* Credit Footer */}
-          <div className="text-center mt-6 sm:mt-8 pb-4">
+          <div className="text-center mt-6 sm:mt-8 pb-4 animate-fade-in">
             <p className="text-sm text-muted-foreground font-radikal">
               Made with ❤️ by <span className="font-semibold text-foreground">ataya гзл</span>
             </p>
