@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -98,9 +99,6 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
     >
       {/* Field markings */}
       <div className="absolute inset-0">
-        {/* Outer field boundary */}
-        <div className="absolute inset-2 border border-white rounded-sm"></div>
-        
         {/* Center circle */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
@@ -130,6 +128,12 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
         <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         
+        {/* Penalty arc lines (the missing lines) */}
+        {/* Top penalty arc */}
+        <div className="absolute top-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-t border-white rounded-t-full"></div>
+        {/* Bottom penalty arc */}
+        <div className="absolute bottom-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-b border-white rounded-b-full"></div>
+        
         {/* Corner arcs */}
         <div className="absolute top-2 left-2 w-4 h-4 border-b border-r border-white rounded-br-full"></div>
         <div className="absolute top-2 right-2 w-4 h-4 border-b border-l border-white rounded-bl-full"></div>
@@ -141,7 +145,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
       {players.map(player => (
         <div 
           key={player.id} 
-          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move select-none transition-all duration-200 hover:scale-105" 
+          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move select-none transition-all duration-300 hover:scale-105 animate-fade-in" 
           style={{
             left: `${player.x}%`,
             top: `${player.y}%`
@@ -193,16 +197,17 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
               )}
             </div>
             <div 
-              className="mt-1 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none"
+              className="mt-1 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none transition-all duration-200"
               style={{ 
                 fontSize: `${Math.max(10, playerSize * 0.22)}px`,
-                fontFamily: 'Arial, sans-serif',
-                fontWeight: '700',
+                fontFamily: 'Arial Black, Arial, sans-serif',
+                fontWeight: '900',
                 letterSpacing: '0.025em',
                 textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                 textAlign: 'center',
                 display: 'block',
-                width: '100%'
+                width: '100%',
+                transform: 'translateY(2px)'
               }}
             >
               {player.name}

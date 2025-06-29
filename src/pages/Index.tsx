@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Users, Zap, Save, Camera, Palette, MapPin, Hash } from 'lucide-react';
+import { Plus, Users, Zap, Save, Camera, Palette, MapPin, Hash, Eye, RotateCw } from 'lucide-react';
 import SoccerField from '@/components/SoccerField';
 import PlayerCard from '@/components/PlayerCard';
 import PlayerForm from '@/components/PlayerForm';
@@ -39,7 +40,9 @@ const Index = () => {
   const [fieldColor, setFieldColor] = useState('dark');
   const [playerSize, setPlayerSize] = useState(48);
   const [showJerseyNumbers, setShowJerseyNumbers] = useState(true);
+  const [rotateField, setRotateField] = useState(false);
   const fieldRef = useRef<HTMLDivElement>(null);
+  const previewFieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedTeam = localStorage.getItem('soccerTeam');
@@ -179,7 +182,7 @@ const Index = () => {
   };
 
   const downloadFieldAsImage = async () => {
-    if (!fieldRef.current) return;
+    if (!previewFieldRef.current) return;
     
     try {
       // Phone dimensions (9:16 aspect ratio) - proper phone size
@@ -227,7 +230,7 @@ const Index = () => {
         <h1 style="font-size: 28px; font-weight: 700; color: white; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
           ${team.name}
         </h1>
-        <p style="font-size: 14px; color: rgba(255,255,255,0.9); margin: 6px 0 0 0; font-family: 'Inter', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+        <p style="font-size: 12px; color: rgba(255,255,255,0.9); margin: 4px 0 0 0; font-family: 'Inter', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
           teamLineup by ataya
         </p>
       `;
@@ -240,7 +243,7 @@ const Index = () => {
       fieldContainer.style.justifyContent = 'center';
       fieldContainer.style.marginBottom = '15px';
       
-      const fieldClone = fieldRef.current.cloneNode(true) as HTMLElement;
+      const fieldClone = previewFieldRef.current.cloneNode(true) as HTMLElement;
       fieldClone.style.position = 'relative';
       fieldClone.style.width = '100%';
       fieldClone.style.maxWidth = `${phoneWidth - 40}px`;
@@ -255,16 +258,16 @@ const Index = () => {
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
         
-        // Fix text positioning with perfect centering
+        // Fix text positioning with perfect centering and add extra pixels
         const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
         if (nameElement) {
           nameElement.style.position = 'relative';
           nameElement.style.left = '0';
           nameElement.style.right = '0';
-          nameElement.style.marginTop = '4px';
+          nameElement.style.marginTop = '6px'; // Added 2 more pixels
           nameElement.style.textAlign = 'center';
           nameElement.style.lineHeight = '1.2';
-          nameElement.style.transform = 'none';
+          nameElement.style.transform = 'translateY(2px)'; // Added 2px downward adjustment
           nameElement.style.display = 'block';
           nameElement.style.width = '100%';
           nameElement.style.fontFamily = 'Arial, sans-serif';
@@ -339,30 +342,70 @@ const Index = () => {
           <div className="mb-4 sm:mb-6 animate-fade-in">
             <Card className="bg-card/80 backdrop-blur-sm border-border/50 transition-all duration-300 hover:shadow-lg">
               <CardHeader className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1">
-                    <Label htmlFor="team-name" className="font-radikal font-semibold whitespace-nowrap">Team Name:</Label>
-                    <Input
-                      id="team-name"
-                      value={team.name}
-                      onChange={(e) => handleTeamNameChange(e.target.value)}
-                      className="text-lg font-semibold font-radikal sm:max-w-xs transition-all duration-200 focus:scale-105"
-                      placeholder="Enter team name"
-                    />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1">
+                      <Label htmlFor="team-name" className="font-radikal font-semibold whitespace-nowrap">Team Name:</Label>
+                      <Input
+                        id="team-name"
+                        value={team.name}
+                        onChange={(e) => handleTeamNameChange(e.target.value)}
+                        className="text-lg font-semibold font-radikal sm:max-w-xs transition-all duration-200 focus:scale-105"
+                        placeholder="Enter team name"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm transition-all duration-200 hover:scale-105">
+                        <Camera className="h-4 w-4 mr-1" />
+                        Download Image
+                      </Button>
+                      <Button
+                        onClick={() => setIsPlayerFormOpen(true)}
+                        size="sm"
+                        className="font-radikal text-xs sm:text-sm transition-all duration-200 hover:scale-105"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Player
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={downloadFieldAsImage} variant="outline" size="sm" className="font-radikal text-xs sm:text-sm transition-all duration-200 hover:scale-105">
-                      <Camera className="h-4 w-4 mr-1" />
-                      Download Image
-                    </Button>
-                    <Button
-                      onClick={() => setIsPlayerFormOpen(true)}
-                      size="sm"
-                      className="font-radikal text-xs sm:text-sm transition-all duration-200 hover:scale-105"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Player
-                    </Button>
+                  
+                  {/* Main Controls Row */}
+                  <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="show-jersey-main" className="font-radikal text-sm">Jersey Numbers</Label>
+                      <Switch
+                        id="show-jersey-main"
+                        checked={showJerseyNumbers}
+                        onCheckedChange={setShowJerseyNumbers}
+                        className="transition-all duration-200"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="rotate-field" className="font-radikal text-sm">Rotate Field</Label>
+                      <Switch
+                        id="rotate-field"
+                        checked={rotateField}
+                        onCheckedChange={setRotateField}
+                        className="transition-all duration-200"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="player-size-main" className="font-radikal text-sm">Player Size:</Label>
+                      <input
+                        type="range"
+                        id="player-size-main"
+                        min="24"
+                        max="72"
+                        step="4"
+                        value={playerSize}
+                        onChange={(e) => setPlayerSize(Number(e.target.value))}
+                        className="w-20 transition-all duration-200"
+                      />
+                      <span className="text-xs text-muted-foreground">{playerSize}px</span>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -374,7 +417,7 @@ const Index = () => {
             <div className="order-1 lg:order-none lg:col-span-2 animate-fade-in">
               <Card className="bg-card/80 backdrop-blur-sm border-border/50 transition-all duration-300 hover:shadow-lg">
                 <CardContent className="p-3 sm:p-6">
-                  <div ref={fieldRef}>
+                  <div ref={fieldRef} className={`transition-transform duration-500 ${rotateField ? 'rotate-90' : ''}`}>
                     <SoccerField
                       players={team.players}
                       onPlayerMove={handlePlayerMove}
@@ -394,34 +437,30 @@ const Index = () => {
             {/* Sidebar */}
             <div className="order-2 lg:order-none space-y-4 sm:space-y-6 animate-fade-in">
               <Tabs defaultValue="players" className="w-full">
-                <TabsList className="grid w-full grid-cols-6 bg-muted/50 h-auto">
-                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
+                <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-auto transition-all duration-300">
+                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
                     <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Players</span>
                   </TabsTrigger>
-                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
+                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
                     <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Positions</span>
                   </TabsTrigger>
-                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
+                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
                     <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Formations</span>
                   </TabsTrigger>
-                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
+                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
                     <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Field</span>
                   </TabsTrigger>
-                  <TabsTrigger value="players-size" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
-                    <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Size</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="jersey" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-200">
-                    <Hash className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Jersey</span>
+                  <TabsTrigger value="preview" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
+                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Preview</span>
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="players" className="space-y-4 mt-4 animate-fade-in">
+                <TabsContent value="players" className="space-y-4 mt-4 animate-fade-in transition-all duration-300">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="flex items-center justify-between font-radikal text-sm sm:text-base">
@@ -438,14 +477,14 @@ const Index = () => {
                     </CardHeader>
                     <CardContent className="space-y-3 p-4 pt-0 max-h-96 overflow-y-auto">
                       {team.players.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
+                        <div className="text-center py-8 text-muted-foreground animate-fade-in">
                           <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
                           <p className="font-radikal">No players added yet</p>
                           <p className="text-sm font-radikal">Add your first player to get started</p>
                         </div>
                       ) : (
                         team.players.map((player) => (
-                          <div key={player.id} className="animate-fade-in">
+                          <div key={player.id} className="animate-fade-in transition-all duration-300 hover:scale-[1.02]">
                             <PlayerCard
                               player={player}
                               onEdit={handleEditPlayer}
@@ -458,7 +497,7 @@ const Index = () => {
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="positions" className="mt-4 animate-fade-in">
+                <TabsContent value="positions" className="mt-4 animate-fade-in transition-all duration-300">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Assign Positions</CardTitle>
@@ -472,7 +511,7 @@ const Index = () => {
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="formations" className="mt-4 animate-fade-in">
+                <TabsContent value="formations" className="mt-4 animate-fade-in transition-all duration-300">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Choose Formation</CardTitle>
@@ -487,7 +526,7 @@ const Index = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="customize" className="mt-4 animate-fade-in">
+                <TabsContent value="customize" className="mt-4 animate-fade-in transition-all duration-300">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
                       <CardTitle className="font-radikal text-sm sm:text-base">Field Color</CardTitle>
@@ -519,116 +558,41 @@ const Index = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="players-size" className="mt-4 animate-fade-in">
+                <TabsContent value="preview" className="mt-4 animate-fade-in transition-all duration-300">
                   <Card className="bg-card/80 backdrop-blur-sm border-border/50">
                     <CardHeader className="p-4">
-                      <CardTitle className="font-radikal text-sm sm:text-base">Player Size</CardTitle>
+                      <CardTitle className="font-radikal text-sm sm:text-base">Download Preview</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 p-4 pt-0">
                       <div className="space-y-2">
-                        <Label htmlFor="player-size" className="font-radikal">Adjust Player Size</Label>
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-muted-foreground font-radikal">Small</span>
-                            <input
-                              type="range"
-                              id="player-size"
-                              min="24"
-                              max="72"
-                              step="4"
-                              value={playerSize}
-                              onChange={(e) => setPlayerSize(Number(e.target.value))}
-                              className="flex-1 transition-all duration-200"
-                            />
-                            <span className="text-sm text-muted-foreground font-radikal">Large</span>
-                          </div>
-                          <div className="text-center text-sm text-muted-foreground font-radikal">
-                            Current size: {playerSize}px
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="font-radikal">Preview</Label>
-                        <div className="flex justify-center p-4 bg-muted/20 rounded">
-                          <div className="relative transition-all duration-300">
-                            <div 
-                              className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg"
-                              style={{ 
-                                width: `${playerSize}px`, 
-                                height: `${playerSize}px`,
-                                fontSize: `${Math.max(10, playerSize * 0.25)}px`
-                              }}
-                            >
-                              10
+                        <Label className="font-radikal">Preview (Phone Format)</Label>
+                        <div className="bg-muted/20 rounded-lg p-4 flex justify-center">
+                          <div className="w-32 h-48 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg shadow-lg flex flex-col overflow-hidden">
+                            <div className="p-2 text-center">
+                              <div className="text-white text-xs font-bold truncate">{team.name}</div>
+                              <div className="text-white/70 text-[8px]">teamLineup by ataya</div>
                             </div>
-                            {showJerseyNumbers && (
-                              <div 
-                                className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white transition-all duration-200"
-                                style={{ 
-                                  width: `${Math.max(16, playerSize * 0.35)}px`, 
-                                  height: `${Math.max(16, playerSize * 0.35)}px`,
-                                  fontSize: `${Math.max(8, playerSize * 0.2)}px`
-                                }}
-                              >
-                                10
+                            <div className="flex-1 p-1">
+                              <div ref={previewFieldRef} className="scale-[0.15] origin-top-left">
+                                <SoccerField
+                                  players={team.players}
+                                  onPlayerMove={() => {}}
+                                  fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
+                                  playerSize={playerSize}
+                                  showJerseyNumbers={showJerseyNumbers}
+                                />
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="jersey" className="mt-4 animate-fade-in">
-                  <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                    <CardHeader className="p-4">
-                      <CardTitle className="font-radikal text-sm sm:text-base">Jersey Numbers</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 p-4 pt-0">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="show-jersey" className="font-radikal">Show Jersey Numbers</Label>
-                          <Switch
-                            id="show-jersey"
-                            checked={showJerseyNumbers}
-                            onCheckedChange={setShowJerseyNumbers}
-                            className="transition-all duration-200"
-                          />
-                        </div>
-                        <p className="text-sm text-muted-foreground font-radikal">
-                          Toggle to show or hide the small jersey number badges on player avatars
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="font-radikal">Preview</Label>
-                        <div className="flex justify-center p-4 bg-muted/20 rounded">
-                          <div className="relative transition-all duration-300">
-                            <div 
-                              className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg"
-                              style={{ 
-                                width: `${playerSize}px`, 
-                                height: `${playerSize}px`,
-                                fontSize: `${Math.max(10, playerSize * 0.25)}px`
-                              }}
-                            >
-                              10
                             </div>
-                            {showJerseyNumbers && (
-                              <div 
-                                className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white transition-all duration-200"
-                                style={{ 
-                                  width: `${Math.max(16, playerSize * 0.35)}px`, 
-                                  height: `${Math.max(16, playerSize * 0.35)}px`,
-                                  fontSize: `${Math.max(8, playerSize * 0.2)}px`
-                                }}
-                              >
-                                10
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
+                      <Button 
+                        onClick={downloadFieldAsImage} 
+                        className="w-full transition-all duration-200 hover:scale-105"
+                      >
+                        <Camera className="h-4 w-4 mr-2" />
+                        Download Image
+                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
