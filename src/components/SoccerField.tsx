@@ -11,6 +11,7 @@ interface SoccerFieldProps {
   className?: string;
   playerSize?: number;
   showJerseyNumbers?: boolean;
+  rotateField?: boolean;
 }
 
 const SoccerField: React.FC<SoccerFieldProps> = ({
@@ -19,7 +20,8 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
   fieldColor = 'from-red-900 via-red-950 to-red-900',
   className,
   playerSize = 48,
-  showJerseyNumbers = true
+  showJerseyNumbers = true,
+  rotateField = false
 }) => {
   const handleDragStart = (e: React.DragEvent, playerId: string) => {
     e.dataTransfer.setData('text/plain', playerId);
@@ -90,6 +92,18 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
     e.preventDefault();
   };
 
+  // Transform player positions when field is rotated
+  const getTransformedPlayers = () => {
+    if (!rotateField) return players;
+    
+    return players.map(player => ({
+      ...player,
+      y: 100 - player.y // Flip vertically (top becomes bottom, bottom becomes top)
+    }));
+  };
+
+  const transformedPlayers = getTransformedPlayers();
+
   return (
     <div 
       className={cn(`relative w-full aspect-[2/3] bg-gradient-to-b ${fieldColor} rounded-lg overflow-hidden border-2 border-white shadow-lg transition-all duration-300`, className)} 
@@ -99,50 +113,53 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
     >
       {/* Field markings */}
       <div className="absolute inset-0">
+        {/* Outer field boundary - ensuring lines touch the border */}
+        <div className="absolute inset-0 border-2 border-white rounded-lg"></div>
+        
         {/* Center circle */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white rounded-full"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
         
         {/* Center line (horizontal) */}
-        <div className="absolute top-1/2 left-2 right-2 transform -translate-y-1/2 h-0.5 bg-white"></div>
+        <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 h-0.5 bg-white"></div>
         
         {/* Goals */}
         {/* Top goal */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border border-b-0 border-white rounded-t-sm"></div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-t-0 border-white"></div>
         {/* Bottom goal */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border border-t-0 border-white rounded-b-sm"></div>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-4 border-2 border-b-0 border-white"></div>
         
         {/* Penalty areas */}
         {/* Top penalty area */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-40 h-16 border border-t-0 border-white"></div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-t-0 border-white"></div>
         {/* Bottom penalty area */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-40 h-16 border border-b-0 border-white"></div>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-40 h-16 border-2 border-b-0 border-white"></div>
         
         {/* Six-yard boxes */}
         {/* Top six-yard box */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-8 border border-t-0 border-white"></div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-t-0 border-white"></div>
         {/* Bottom six-yard box */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-8 border border-b-0 border-white"></div>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-8 border-2 border-b-0 border-white"></div>
         
         {/* Penalty spots */}
         <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full"></div>
         
-        {/* Penalty arc lines (the missing lines) */}
-        {/* Top penalty arc */}
-        <div className="absolute top-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-t border-white rounded-t-full"></div>
-        {/* Bottom penalty arc */}
-        <div className="absolute bottom-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-b border-white rounded-b-full"></div>
+        {/* Penalty arc lines (corrected orientation - arcs open toward goals) */}
+        {/* Top penalty arc - opens upward toward goal */}
+        <div className="absolute top-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-b-2 border-white rounded-b-full"></div>
+        {/* Bottom penalty arc - opens downward toward goal */}
+        <div className="absolute bottom-[4.5rem] left-1/2 transform -translate-x-1/2 w-16 h-8 border-t-2 border-white rounded-t-full"></div>
         
         {/* Corner arcs */}
-        <div className="absolute top-2 left-2 w-4 h-4 border-b border-r border-white rounded-br-full"></div>
-        <div className="absolute top-2 right-2 w-4 h-4 border-b border-l border-white rounded-bl-full"></div>
-        <div className="absolute bottom-2 left-2 w-4 h-4 border-t border-r border-white rounded-tr-full"></div>
-        <div className="absolute bottom-2 right-2 w-4 h-4 border-t border-l border-white rounded-tl-full"></div>
+        <div className="absolute top-0 left-0 w-4 h-4 border-b-2 border-r-2 border-white rounded-br-full"></div>
+        <div className="absolute top-0 right-0 w-4 h-4 border-b-2 border-l-2 border-white rounded-bl-full"></div>
+        <div className="absolute bottom-0 left-0 w-4 h-4 border-t-2 border-r-2 border-white rounded-tr-full"></div>
+        <div className="absolute bottom-0 right-0 w-4 h-4 border-t-2 border-l-2 border-white rounded-tl-full"></div>
       </div>
 
       {/* Players */}
-      {players.map(player => (
+      {transformedPlayers.map(player => (
         <div 
           key={player.id} 
           className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move select-none transition-all duration-300 hover:scale-105 animate-fade-in" 
@@ -163,7 +180,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
             <div className="relative">
               {player.profilePhoto ? (
                 <Avatar 
-                  className="border border-white shadow-lg hover:scale-110 transition-transform pointer-events-none"
+                  className="border-2 border-white shadow-lg hover:scale-110 transition-transform pointer-events-none"
                   style={{ width: `${playerSize}px`, height: `${playerSize}px` }}
                 >
                   <AvatarImage src={player.profilePhoto} alt={player.name} className="pointer-events-none" />
@@ -173,7 +190,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
                 </Avatar>
               ) : (
                 <div 
-                  className="rounded-full bg-white border border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg hover:scale-110 transition-transform pointer-events-none"
+                  className="rounded-full bg-white border-2 border-red-600 flex items-center justify-center text-red-600 font-bold shadow-lg hover:scale-110 transition-transform pointer-events-none"
                   style={{ 
                     width: `${playerSize}px`, 
                     height: `${playerSize}px`,
@@ -185,7 +202,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
               )}
               {showJerseyNumbers && (
                 <div 
-                  className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border border-white pointer-events-none transition-all duration-200"
+                  className="absolute -bottom-1 -right-1 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border-2 border-white pointer-events-none transition-all duration-200"
                   style={{ 
                     width: `${Math.max(16, playerSize * 0.35)}px`, 
                     height: `${Math.max(16, playerSize * 0.35)}px`,
@@ -197,7 +214,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
               )}
             </div>
             <div 
-              className="mt-1 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none transition-all duration-200"
+              className="mt-2 px-2 py-0.5 font-bold text-white whitespace-nowrap pointer-events-none transition-all duration-200"
               style={{ 
                 fontSize: `${Math.max(10, playerSize * 0.22)}px`,
                 fontFamily: 'Arial Black, Arial, sans-serif',
@@ -206,8 +223,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
                 textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                 textAlign: 'center',
                 display: 'block',
-                width: '100%',
-                transform: 'translateY(2px)'
+                width: '100%'
               }}
             >
               {player.name}

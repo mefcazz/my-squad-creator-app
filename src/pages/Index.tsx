@@ -198,30 +198,37 @@ const Index = () => {
       
       // Use the same background color as the field
       const currentFieldColor = fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color;
-      tempContainer.style.background = `linear-gradient(to bottom, ${currentFieldColor.replace('from-', '').replace('via-', '').replace('to-', '').split(' ').map(color => {
-        // Convert Tailwind color classes to actual colors
-        if (color.includes('red-900')) return '#7f1d1d';
-        if (color.includes('red-950')) return '#450a0a';
-        if (color.includes('green-700')) return '#15803d';
-        if (color.includes('green-800')) return '#166534';
-        if (color.includes('blue-700')) return '#1d4ed8';
-        if (color.includes('blue-800')) return '#1e40af';
-        if (color.includes('purple-700')) return '#7c3aed';
-        if (color.includes('purple-800')) return '#6b21a8';
-        if (color.includes('emerald-700')) return '#047857';
-        if (color.includes('emerald-800')) return '#065f46';
-        if (color.includes('orange-700')) return '#c2410c';
-        if (color.includes('orange-800')) return '#9a3412';
-        return '#7f1d1d'; // fallback
-      }).join(', ')})`;
       
+      // Convert Tailwind gradient to actual CSS gradient
+      const getColorValue = (colorClass: string) => {
+        if (colorClass.includes('red-900')) return '#7f1d1d';
+        if (colorClass.includes('red-950')) return '#450a0a';
+        if (colorClass.includes('green-700')) return '#15803d';
+        if (colorClass.includes('green-800')) return '#166534';
+        if (colorClass.includes('blue-700')) return '#1d4ed8';
+        if (colorClass.includes('blue-800')) return '#1e40af';
+        if (colorClass.includes('purple-700')) return '#7c3aed';
+        if (colorClass.includes('purple-800')) return '#6b21a8';
+        if (colorClass.includes('emerald-700')) return '#047857';
+        if (colorClass.includes('emerald-800')) return '#065f46';
+        if (colorClass.includes('orange-700')) return '#c2410c';
+        if (colorClass.includes('orange-800')) return '#9a3412';
+        return '#7f1d1d';
+      };
+      
+      const gradientParts = currentFieldColor.split(' ');
+      const fromColor = getColorValue(gradientParts.find(part => part.startsWith('from-'))?.replace('from-', '') || '');
+      const viaColor = getColorValue(gradientParts.find(part => part.startsWith('via-'))?.replace('via-', '') || '');
+      const toColor = getColorValue(gradientParts.find(part => part.startsWith('to-'))?.replace('to-', '') || '');
+      
+      tempContainer.style.background = `linear-gradient(to bottom, ${fromColor}, ${viaColor}, ${toColor})`;
       tempContainer.style.padding = '20px';
       tempContainer.style.boxSizing = 'border-box';
       tempContainer.style.display = 'flex';
       tempContainer.style.flexDirection = 'column';
       document.body.appendChild(tempContainer);
       
-      // Add team name header with elegant font matching main title
+      // Add team name header
       const header = document.createElement('div');
       header.style.textAlign = 'center';
       header.style.marginBottom = '15px';
@@ -243,14 +250,22 @@ const Index = () => {
       fieldContainer.style.justifyContent = 'center';
       fieldContainer.style.marginBottom = '15px';
       
-      const fieldClone = previewFieldRef.current.cloneNode(true) as HTMLElement;
-      fieldClone.style.position = 'relative';
-      fieldClone.style.width = '100%';
-      fieldClone.style.maxWidth = `${phoneWidth - 40}px`;
-      fieldClone.style.height = 'auto';
-      fieldClone.style.aspectRatio = '2/3';
+      // Create a properly sized field clone
+      const fieldWrapper = document.createElement('div');
+      fieldWrapper.style.width = `${phoneWidth - 40}px`;
+      fieldWrapper.style.height = `${(phoneWidth - 40) * 1.5}px`; // 2:3 aspect ratio
+      fieldWrapper.style.position = 'relative';
       
-      // Fix all player positions and text positioning with perfect centering
+      // Clone and style the field
+      const fieldClone = previewFieldRef.current.cloneNode(true) as HTMLElement;
+      fieldClone.style.position = 'absolute';
+      fieldClone.style.top = '0';
+      fieldClone.style.left = '0';
+      fieldClone.style.width = '100%';
+      fieldClone.style.height = '100%';
+      fieldClone.style.transform = 'none';
+      
+      // Fix all player positions and text positioning
       const playerElements = fieldClone.querySelectorAll('[data-player="true"]');
       playerElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
@@ -258,16 +273,15 @@ const Index = () => {
         htmlElement.style.transform = 'translate(-50%, -50%)';
         htmlElement.style.zIndex = '10';
         
-        // Fix text positioning with perfect centering and add extra pixels
+        // Fix text positioning with perfect centering
         const nameElement = htmlElement.querySelector('div:last-child') as HTMLElement;
         if (nameElement) {
           nameElement.style.position = 'relative';
           nameElement.style.left = '0';
           nameElement.style.right = '0';
-          nameElement.style.marginTop = '6px'; // Added 2 more pixels
+          nameElement.style.marginTop = '8px'; // Increased margin for better positioning
           nameElement.style.textAlign = 'center';
           nameElement.style.lineHeight = '1.2';
-          nameElement.style.transform = 'translateY(2px)'; // Added 2px downward adjustment
           nameElement.style.display = 'block';
           nameElement.style.width = '100%';
           nameElement.style.fontFamily = 'Arial, sans-serif';
@@ -285,7 +299,8 @@ const Index = () => {
         }
       });
       
-      fieldContainer.appendChild(fieldClone);
+      fieldWrapper.appendChild(fieldClone);
+      fieldContainer.appendChild(fieldWrapper);
       tempContainer.appendChild(fieldContainer);
       
       const canvas = await html2canvas(tempContainer, {
@@ -417,7 +432,7 @@ const Index = () => {
             <div className="order-1 lg:order-none lg:col-span-2 animate-fade-in">
               <Card className="bg-card/80 backdrop-blur-sm border-border/50 transition-all duration-300 hover:shadow-lg">
                 <CardContent className="p-3 sm:p-6">
-                  <div ref={fieldRef} className={`transition-transform duration-500 ${rotateField ? 'rotate-90' : ''}`}>
+                  <div ref={fieldRef}>
                     <SoccerField
                       players={team.players}
                       onPlayerMove={handlePlayerMove}
@@ -425,6 +440,7 @@ const Index = () => {
                       className="mb-4"
                       playerSize={playerSize}
                       showJerseyNumbers={showJerseyNumbers}
+                      rotateField={rotateField}
                     />
                   </div>
                   <div className="text-center text-xs sm:text-sm text-muted-foreground font-radikal">
@@ -438,23 +454,23 @@ const Index = () => {
             <div className="order-2 lg:order-none space-y-4 sm:space-y-6 animate-fade-in">
               <Tabs defaultValue="players" className="w-full">
                 <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-auto transition-all duration-300">
-                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="players" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Players</span>
                   </TabsTrigger>
-                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="positions" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Positions</span>
                   </TabsTrigger>
-                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="formations" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Formations</span>
                   </TabsTrigger>
-                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="customize" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Field</span>
                   </TabsTrigger>
-                  <TabsTrigger value="preview" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="preview" className="font-radikal text-xs sm:text-sm p-2 transition-all duration-300 hover:scale-105 data-[state=active]:animate-scale-in">
                     <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="hidden sm:inline">Preview</span>
                   </TabsTrigger>
@@ -580,6 +596,7 @@ const Index = () => {
                                   fieldColor={fieldColors.find(f => f.id === fieldColor)?.color || fieldColors[1].color}
                                   playerSize={playerSize}
                                   showJerseyNumbers={showJerseyNumbers}
+                                  rotateField={rotateField}
                                 />
                               </div>
                             </div>
